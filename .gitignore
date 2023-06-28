@@ -293,4 +293,6 @@ wwwroot/adminClient
 sdb.bat
 testProd.bat
 
+Migrations
+
 # End of https://www.toptal.com/developers/gitignore/api/aspnetcore,react
