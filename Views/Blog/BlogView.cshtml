@@ -1,0 +1,7 @@
+<h1>
+    @ViewBag.Blog.Title
+</h1>
+@foreach(var t in ViewBag.Blog.TextBlocks)
+{
+    <p>@t.Content</p>
+}

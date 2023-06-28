@@ -1,0 +1,12 @@
+<environment include="Development">
+    <script type="module" src="http://localhost:5000/src/main.tsx"></script>
+</environment>
+<environment include="Production"> 
+    @section Styles {
+        <link rel="stylesheet" asp-href-include="/adminClient/assets/index-*.css">
+    }
+    @section Scripts {
+        <script asp-src-include="/adminClient/assets/index-*.js"></script>
+    }
+</environment>
+<div id="root"></div>

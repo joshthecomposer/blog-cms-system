@@ -1,0 +1,23 @@
+@model Blog
+<h1>Welcome back, @Context.Session.GetString("Name")</h1>
+
+@foreach (var b in ViewBag.Blogs)
+{
+    <hr />
+    <h3>@b.Title</h3>
+    <a href="/admin/blog/@b.BlogId">Edit</a>
+    <form
+        action="/admin/blog/delete/@ViewBag.AdminId/@b.BlogId"
+        method="POST">
+    <button type="submit">Delete</button>
+    </form>
+    <hr />
+}
+
+<form action="/admin/blog" method="POST">
+    <label>Title</label>
+    <input type="text" asp-for="Title">
+    <span asp-validation-for="Title"></span>
+    <input type="hidden" asp-for="AdminId" value="@ViewBag.AdminId">
+    <button>Create A New Blog</button>
+</form>

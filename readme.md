@@ -1,0 +1,3 @@
+This is a CMS blog system I am building for the podcast Tolkien With Friends.
+
+More info to come soon...

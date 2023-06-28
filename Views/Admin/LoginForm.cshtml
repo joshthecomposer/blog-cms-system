@@ -1,0 +1,10 @@
+@model LoginAdmin
+<form asp-action="login" asp-controller="Admin" method="POST">
+    <label>Email</label>
+    <input type="text" asp-for="Email">
+    <span asp-validation-for="Email"></span>
+    <label>Password</label>
+    <input type="password" asp-for="Password">
+    <span asp-validation-for="Password"></span>
+    <Button type="submit">Login</Button>
+</form>
