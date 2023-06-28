@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Blog } from "../types/Types";
-import { useBlogs } from "../hooks/useBlogs";
+import useLocalStorage from "../hooks/useLocalStorage";
 
 interface TAProps {
   value: string | undefined;
@@ -18,7 +18,7 @@ const AutoGrowingTextarea = (props: TAProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [highlighted, setHighlighted] = useState(false);
 
-  const { blogs, setBlogs } = useBlogs();
+  const [blogs, setBlogs] = useLocalStorage("blogs", []);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -52,20 +52,12 @@ const AutoGrowingTextarea = (props: TAProps) => {
               ),
             ],
           };
-          console.log(newCurrentBlog, "IS THE NEW CURRENT BLOG");
           setCurrentBlog(newCurrentBlog);
-          const pulled: string | null = localStorage.getItem("blogs");
-          if (pulled !== null) {
-            let currentList = blogs;
-            console.log(currentList,"IS BLOGS CONTEXT");
             const updatedBlogList = [
               ...blogs.filter((b: Blog) => b.blogId !== currentBlog.blogId),
               newCurrentBlog,
             ];
             setBlogs(updatedBlogList);
-            console.log(updatedBlogList,"IS BLOGS AFTER FILTER. ");
-            localStorage.setItem("blogs", JSON.stringify(updatedBlogList));
-          }
         })
         .catch((err) => console.log(err));
     }

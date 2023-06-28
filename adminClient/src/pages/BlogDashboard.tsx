@@ -1,11 +1,11 @@
-import { useBlogs } from "../hooks/useBlogs";
-import { useEffect, useState, ChangeEvent } from "react";
-import { BlogReq } from "../types/Types";
+import { useState, ChangeEvent, useEffect } from "react";
+import { Blog, BlogReq } from "../types/Types";
 import { initializeNewBlog } from "../utils/apiRequests";
 import { Link } from "react-router-dom";
+import useLocalStorage from "../hooks/useLocalStorage";
 
 const BlogDashboard = () => {
-  const { blogs, setBlogs } = useBlogs();
+  const  [blogs, setBlogs]  = useLocalStorage("blogs", []);
   const [newBlog, setNewBlog] = useState<BlogReq>({
     adminId: 0,
     title: "",
@@ -17,7 +17,6 @@ const BlogDashboard = () => {
       const res: any = await initializeNewBlog(newBlog);
       const updatedBlogs = [...blogs, res];
       setBlogs(updatedBlogs);
-      localStorage.setItem("blogs", JSON.stringify(updatedBlogs));
       setNewBlog({ ...newBlog, title: "" });
     } catch (err: any) {}
   };
@@ -27,15 +26,10 @@ const BlogDashboard = () => {
   };
 
   useEffect(() => {
-    const storedBlogs = localStorage.getItem("blogs");
-    if (storedBlogs) {
-      setBlogs(JSON.parse(storedBlogs));
-    }
-    const adminId = localStorage.getItem("adminId");
-    if (adminId) {
-      setNewBlog({ ...newBlog, adminId: parseInt(adminId) });
-    }
-  }, [setBlogs]);
+    let sortedBlogs: Blog[] = blogs.sort((a : Blog,b : Blog)=>(a.blogId > b.blogId) ? 1 : ((b.blogId > a.blogId)?-1 : 0))
+    console.log(sortedBlogs);
+    setBlogs(sortedBlogs)
+  },[])
 
   return (
     <>
@@ -43,7 +37,7 @@ const BlogDashboard = () => {
       <div className="flex flex-col items-center">
         <table className="w-full border-collapse md:w-2/3">
           <tbody>
-            {blogs.map((b, i) => (
+            {blogs.map((b : Blog, i : number) => (
               <tr key={i}>
                 <td className="border-y text-xl p-5 w-full flex justify-between">
                   <p className="w-full">{b.title}</p>

@@ -1,26 +1,26 @@
 export type Blog = {
-  blogId: number;
-  title: string;
-  adminId: number;
-  released: boolean;
-  displayables: Displayable[];
-  createdAt: string;
-  updatedAt: string;
-};
+    blogId: number
+    title: string
+    adminId: number
+    released: boolean
+    displayables: Displayable[]
+    createdAt: string
+    updatedAt: string
+}
 
 export type Displayable = {
-  displayableId: number;
-  content?: string;
-  url?: string;
-  mediaType?: string;
-  caption?: string;
-  textType?: string;
-  signature?: string;
+    displayableId: number
+    content?: string
+    url?: string
+    mediaType?: string
+    caption?: string
+  textType?: string
+    signature?: string
 
-  blogId: number;
-  displayOrder: number;
-  dataType: string;
-};
+    blogId: number
+    displayOrder: number
+    dataType:string
+}
 
 // export type TextBlock = {
 //     textBlockId: number;
@@ -44,9 +44,9 @@ export type Displayable = {
 export type BlogContextType = {
   blogs: Blog[];
   setBlogs: React.Dispatch<React.SetStateAction<Blog[]>>;
-};
+}
 
 export type BlogReq = {
   adminId: number;
   title: string;
-};
+}

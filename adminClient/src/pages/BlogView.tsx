@@ -4,6 +4,7 @@ import { Blog } from "../types/Types";
 import { TwitterTweetEmbed } from "react-twitter-embed";
 import AutoGrowingTextarea from "../components/AutoGrowingTextarea";
 import BlogEditorTool from "../components/BlogEditorTool";
+import useLocalStorage from "../hooks/useLocalStorage";
 
 const BlogView = () => {
   const [currentBlog, setCurrentBlog] = useState<Blog>({
@@ -16,19 +17,19 @@ const BlogView = () => {
     updatedAt: "",
   });
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+  const [blogs, setBlogs] = useLocalStorage("blogs", []);
+
   const navigate = useNavigate();
   const { blogId } = useParams();
 
   useEffect(() => {
-    const fromStorage = localStorage.getItem("blogs");
-    if (fromStorage && blogId) {
-      let converted: Blog[] = JSON.parse(fromStorage);
-      let grabbedBlog: Blog | undefined = converted.find(
-        (b: Blog) => b.blogId == parseInt(blogId)
-      );
-      if (grabbedBlog) {
-        setCurrentBlog(grabbedBlog);
-      }
+    if (blogs && blogId) {
+      console.log(blogs);
+      let oneBlog: Blog = blogs.filter((b: Blog) => b.blogId === parseInt(blogId))[0]
+      console.log(oneBlog)
+        setCurrentBlog(oneBlog);
     } else {
       navigate("/admin/blog/dashboard");
     }

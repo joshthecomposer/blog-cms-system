@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { adminLoginRequest } from "../utils/apiRequests";
 import { adminStorage } from "../utils/adminStorage";
-// import useLocalStorage from "../hooks/useLocalStorage";
+import useLocalStorage from "../hooks/useLocalStorage";
 // interface LoginFormProps {
 //   error: string
 //   setError:string
@@ -16,13 +16,13 @@ const LoginForm = () => {
   });
   const navigate = useNavigate();
 
-  // const [blogs, setBlogs] = useLocalStorage("blogs",[]);
-
   const [loginUser, setLoginUser] = useState({
     email: "",
     password: "",
   });
   const { setIsLoggedIn } = useAuth();
+
+  const [blogs, setBlogs] = useLocalStorage("blogs", []);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setLoginUser({ ...loginUser, [e.target.name]: e.target.value });
@@ -32,8 +32,10 @@ const LoginForm = () => {
     e.preventDefault();
     try {
       const res: any = await adminLoginRequest(loginUser);
-      console.log(res);
       adminStorage(res);
+      console.log(res.blogs);
+      setBlogs(res.blogs);
+      console.log(blogs)
       setIsLoggedIn(true);
 
       navigate("/admin/blog/dashboard");

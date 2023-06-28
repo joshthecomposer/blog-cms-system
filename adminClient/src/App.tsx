@@ -5,23 +5,23 @@ import CatchAll from "./pages/CatchAll";
 import { AuthContext } from "./context/AuthContext";
 import { useState, useEffect } from "react";
 import NavDrawer from "./components/NavDrawer";
-import BlogContext from "./context/BlogContext";
-import { Blog } from "./types/Types";
+// import BlogContext from "./context/BlogContext";
+// import { Blog } from "./types/Types";
 import BlogView from "./pages/BlogView";
+// import useLocalStorage from "./hooks/useLocalStorage";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [blogs, setBlogs] = useState<Blog[]>([]);
 
   useEffect(() => {
     setIsLoggedIn(!!localStorage.getItem("adminId"));
   }, []);
   return (
 
-      <BlogContext.Provider value={{ blogs, setBlogs }}>
         <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
         <NavDrawer />
         <div className="px-5 md:px-0">
+
           <Routes>
             {isLoggedIn ? (
               <Route
@@ -35,7 +35,6 @@ function App() {
           </Routes>
         </div>
         </AuthContext.Provider>
-      </BlogContext.Provider>
 
   );
 }

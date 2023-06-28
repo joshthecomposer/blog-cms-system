@@ -1,13 +1,10 @@
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { useBlogs } from "../hooks/useBlogs";
 const NavDrawer = () => {
-  const { setBlogs } = useBlogs();
   const navigate = useNavigate();
   const { isLoggedIn, setIsLoggedIn } = useAuth();
   const handleLogout = () => {
     localStorage.clear();
-    setBlogs([]);
     setIsLoggedIn(false);
     navigate("/admin");
   };

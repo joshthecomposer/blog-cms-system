@@ -25,5 +25,4 @@ export const adminStorage = (input: AdminWithTokens) => {
   localStorage.setItem("name", input.name);
   localStorage.setItem("adminId", input.adminId);
   localStorage.setItem("email", input.email);
-  localStorage.setItem("blogs", JSON.stringify(input.blogs));
 }
