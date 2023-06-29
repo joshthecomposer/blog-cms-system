@@ -4,11 +4,14 @@ phases:
     commands:
       - >-
         curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin
-        --channel STS
+        --version 7.0.0
+      - dotnet --version
   build:
     commands:
       - dotnet restore MyApp.csproj
       - dotnet build MyApp.csproj
+      - dotnet publish MyApp.csproj -c Release -o ./publish
 artifacts:
   files:
     - '**/*'
+  base-directory: publish
