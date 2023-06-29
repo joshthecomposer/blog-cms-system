@@ -7,8 +7,8 @@ phases:
         --channel STS
   build:
     commands:
-      - dotnet restore
-      - dotnet publish
+      - dotnet restore MyApp.csproj
+      - dotnet publish MyApp.csproj -c Release -o ./publish
 artifacts:
   files:
-    - './bin/Debug/net7.0/publish/**/*'
+    - './publish/**/*'
