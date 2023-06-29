@@ -10,15 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 //postgresql://postgres:admin@localhost:5432/budhub_db
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 var jwtSecret = builder.Configuration["JWTSecret"];
-if (jwtSecret == null || jwtSecret == string.Empty)
-{
-    jwtSecret = "5Tb6R+2ws4QbU0Jz";
-}
-if (connectionString == null || connectionString == string.Empty)
-{
-    connectionString = "Host=localhost;Port=5432;Database=blog_system_db;Username=postgres;Password=admin";
-}
-var key = Encoding.ASCII.GetBytes(jwtSecret);
+var key = Encoding.ASCII.GetBytes(jwtSecret!);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSession();

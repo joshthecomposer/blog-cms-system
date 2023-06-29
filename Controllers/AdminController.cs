@@ -141,12 +141,8 @@ public class AdminController : ControllerBase
     private string GenerateAccessToken(int adminId)
     {
         JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
-        string? encKey = _config["JWTSecret"];
-        if (encKey == null || encKey == string.Empty)
-        {
-            encKey = "5Tb6R+2ws4QbU0Jz";
-        }
-        byte[] key = Encoding.ASCII.GetBytes(encKey);
+        string? encKey = _config["Encryption_Key"];
+        byte[] key = Encoding.ASCII.GetBytes(encKey!);
         SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(new Claim[]
