@@ -2,11 +2,13 @@ version: 0.2
 phases:
   install:
     commands:
-      - curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel STS
+      - >-
+        curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin
+        --channel STS
   build:
     commands:
       - dotnet restore
       - dotnet build
-  artifacts:
-    files:
-	  - '**/*'
+artifacts: null
+files:
+  - .\VBHelloWorld\bin\Debug\*
