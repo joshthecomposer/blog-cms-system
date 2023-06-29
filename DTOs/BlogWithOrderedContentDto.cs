@@ -23,7 +23,7 @@ public class BlogWithOrderedContentDto
 			.ToList();
 		BlogId = blog.BlogId;
 		Title = blog.Title;
-		AdminId = blog.AdminId;
+		// AdminId = blog.AdminId;
 		Released = blog.Released;
 		CreatedAt = blog.CreatedAt;
 		UpdatedAt = blog.UpdatedAt;

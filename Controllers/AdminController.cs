@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 
 using MyApp.Models.Auth;
 using MyApp.Data;
@@ -137,7 +138,7 @@ public class AdminController : ControllerBase
     //=============================================================
     //=========JWT GENERATION VALIDATION AND REFRESH===============
 
-    private string GenerateAccessToken(int userId)
+    private string GenerateAccessToken(int adminId)
     {
         JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
         string? encKey = _config["JWTSecret"];
@@ -150,7 +151,7 @@ public class AdminController : ControllerBase
         {
             Subject = new ClaimsIdentity(new Claim[]
             {
-                new Claim(ClaimTypes.Name, Convert.ToString(userId))
+                new Claim(ClaimTypes.Name, Convert.ToString(adminId))
             }),
             Expires = DateTime.UtcNow.AddMinutes(1),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
@@ -247,15 +248,15 @@ public class AdminController : ControllerBase
     {
         JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
         string? credentials = input.Parameter;
-        Console.WriteLine("RUNNING REGULAR VERIFY CLAIM FUNCTION WITH TOKEN");
-        Claim? verifiedClaim = handler.ReadJwtToken(credentials).Claims.Where(c => c.Value == id.ToString()).FirstOrDefault();
-        return verifiedClaim != null;
+		Console.WriteLine("RUNNING REGULAR VERIFY CLAIM FUNCTION WITH TOKEN " + id);
+		Claim? verifiedClaim = handler.ReadJwtToken(credentials).Claims.Where(c => c.Value == id.ToString()).FirstOrDefault();
+		return verifiedClaim != null;
     }
     public static bool VerifyClaim(string input, int id)
     {
         JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
         string? credentials = input;
-        Console.WriteLine("RUNNING OVERLOADED VERIFY CLAIM FUNCTION WITH TOKEN");
+        Console.WriteLine("RUNNING OVERLOADED VERIFY CLAIM FUNCTION WITH TOKEN", input);
         Claim? verifiedClaim = handler.ReadJwtToken(credentials).Claims.Where(c => c.Value == id.ToString()).FirstOrDefault();
         return verifiedClaim == null ? false : true;
     }

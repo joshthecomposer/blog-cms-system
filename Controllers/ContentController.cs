@@ -148,8 +148,8 @@ public class ContentController : ControllerBase
 			.Include(b => b.Images)
 			.FirstOrDefaultAsync();
 
-        if (blog == null)
-        {
+		if (blog == null)
+		{
 			return BadRequest();
 		}
 
@@ -163,15 +163,25 @@ public class ContentController : ControllerBase
 		return displayables;
 	}
 
-	[HttpDelete("text/{textBlockId}")]
-	public async Task<ActionResult> DeleteTextBlockById(int textBlockId)
+	[HttpDelete("text/{textBlockId}/{blogId}")]
+	public async Task<ActionResult<BlogWithOrderedContentDto>> DeleteTextBlockById(int blogId, int textBlockId)
 	{
-		var textToDelete = await _db.TextBlocks.SingleOrDefaultAsync(t => t.TextBlockId == textBlockId);
-		if (textToDelete != null)
+		var blog = await _db.Blogs
+		.Include(b => b.TextBlocks)
+		.Include(b=>b.Images)
+		.Include(b=>b.Tweets)
+		.SingleOrDefaultAsync(b => b.BlogId == blogId);
+		if (blog != null)
 		{
-			_db.TextBlocks.Remove(textToDelete);
-			await _db.SaveChangesAsync();
-			return NoContent();
+			var textToDelete = blog.TextBlocks.Where(t => t.TextBlockId == textBlockId).SingleOrDefault();
+			if (textToDelete != null)
+			{
+				_db.TextBlocks.Remove(textToDelete);
+				blog.TextBlocks.Remove(textToDelete);
+				await _db.SaveChangesAsync();
+				return new BlogWithOrderedContentDto(blog);
+			}
+
 		}
 		return BadRequest("TextBlock not found");
 	}

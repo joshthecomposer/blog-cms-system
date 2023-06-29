@@ -12,7 +12,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 var jwtSecret = builder.Configuration["JWTSecret"];
 if (jwtSecret == null || jwtSecret == string.Empty)
 {
-    jwtSecret = "keep it secret";
+    jwtSecret = "5Tb6R+2ws4QbU0Jz";
 }
 if (connectionString == null || connectionString == string.Empty)
 {
@@ -33,7 +33,7 @@ builder.Services.AddAuthentication(options =>
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-    .AddJwtBearer(options =>
+    .AddJwtBearer("Bearer",options =>
     {
         options.RequireHttpsMetadata = true;
         options.SaveToken = true;

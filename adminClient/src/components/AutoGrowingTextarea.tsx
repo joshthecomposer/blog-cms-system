@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import { Blog } from "../types/Types";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { Displayable } from "../types/Types";
+import { deleteTextBlock } from "../utils/apiRequests";
 
 interface TAProps {
   value: string | undefined;
@@ -29,54 +29,50 @@ const AutoGrowingTextarea = (props: TAProps) => {
     }
   }, [text]);
 
+
+  //TODO: track whether the user actually started editing the blog or not and don't send alert when changing
+  //blogs if not.
   const handleTextareaChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
     // const textarea = event.target;
     setText(event.target.value);
-
   };
 
   const handleTextFocus = () => {
-    setSaveButton(true)
-  }
+    setSaveButton(true);
+  };
 
   const handleTextBlur = () => {
-    setSaveButton(false)
-    let disps: Displayable[] = currentBlog.displayables.filter((d:Displayable)=>d.displayableId !== displayableId)
-    let one  : Displayable= currentBlog.displayables.filter((d: Displayable) => d.displayableId === displayableId)[0]
+    setSaveButton(false);
+    let disps: Displayable[] = currentBlog.displayables.filter(
+      (d: Displayable) => d.displayableId !== displayableId
+    );
+    let one: Displayable = currentBlog.displayables.filter(
+      (d: Displayable) => d.displayableId === displayableId
+    )[0];
     one.content = text;
     disps = [...disps, one].sort((a: Displayable, b: Displayable) =>
-    a.displayOrder > b.displayOrder ? 1 : b.displayOrder > a.displayOrder ? -1 : 0
-  );
-    setCurrentBlog({...currentBlog, displayables:disps})
-  }
+      a.displayOrder > b.displayOrder
+        ? 1
+        : b.displayOrder > a.displayOrder
+        ? -1
+        : 0
+    );
+    setCurrentBlog({ ...currentBlog, displayables: disps });
+  };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (confirm("Are you sure you want to delete this paragraph?")) {
-      axios
-        .delete("http://localhost:5000/api/content/text/" + displayableId)
-        .then(() => {
-          const newCurrentBlog = {
-            ...currentBlog,
-            displayables: [
-              ...currentBlog.displayables.filter(
-                (d) =>
-                  d.dataType === "Image" ||
-                  d.dataType === "Tweet" ||
-                  (d.displayableId !== displayableId &&
-                    d.dataType === "TextBlock")
-              ),
-            ],
-          };
-          setCurrentBlog(newCurrentBlog);
-          const updatedBlogList = [
-            ...blogs.filter((b: Blog) => b.blogId !== currentBlog.blogId),
-            newCurrentBlog,
-          ];
-          setBlogs(updatedBlogList);
-        })
-        .catch((err) => console.log(err));
+      try {
+        const response = await deleteTextBlock(displayableId, currentBlog.blogId);
+        console.log(response);
+        const blog = response;
+        setCurrentBlog(blog);
+        setBlogs([...blogs.filter((b : Blog)=>b.blogId !== currentBlog.blogId), blog]);
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -85,7 +81,6 @@ const AutoGrowingTextarea = (props: TAProps) => {
   //TODO:  maybe blog view page should be a seperate query?
   //WE could do a rotating cache on the local storage where at most 2 blogs are stored instead of all of them? Then when the view blog is clicked it is checked against the cached blogs and if none, queried.
   //Localstorage on login will be populatd with just the title and the id etc, just what is needed to get the blog when viewing.
-  //TODO: THIS CAN currently only handle text deletion.
 
   useEffect(() => {
     setText(value);
@@ -107,12 +102,12 @@ const AutoGrowingTextarea = (props: TAProps) => {
         value={text}
         onChange={handleTextareaChange}
         onFocus={handleTextFocus}
-        onBlur = {handleTextBlur}
+        onBlur={handleTextBlur}
         data-expandable
+        onMouseOver={() => setHighlighted(true)}
+        onMouseLeave={() => setHighlighted(false)}
       />{" "}
       <button
-        onMouseOver={()=>setHighlighted(true)}
-        onMouseLeave={()=>setHighlighted(false)}
         // onMouseDown={saveChanges}
         className="bg-green-500 bg-opacity-90 absolute z-20 bottom-10 right-2 md:-right-10 rounded px-3 shadow-lg text-green-100 active:bg-red-600 active:bg-opacity-100"
         style={{ display: saveButton ? "inline" : "none" }}
@@ -120,10 +115,9 @@ const AutoGrowingTextarea = (props: TAProps) => {
         Save
       </button>
       <button
-        onMouseOver={()=>setHighlighted(true)}
-        onMouseLeave={()=>setHighlighted(false)}
         onMouseDown={confirmDelete}
         className="bg-red-500 bg-opacity-90 absolute z-20 bottom-2 right-2 md:-right-10 rounded px-3 shadow-lg text-red-100 active:bg-red-600 active:bg-opacity-100"
+        style={{ display: saveButton ? "inline" : "none" }}
       >
         Delete
       </button>

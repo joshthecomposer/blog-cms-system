@@ -9,6 +9,7 @@ const BlogDashboard = () => {
   const navigate = useNavigate()
   const [blogs, setBlogs] = useLocalStorage("blogs", []);
   const [currentBlog, setCurrentBlog] = useLocalStorage("currentBlog", {});
+
   const [newBlog, setNewBlog] = useState<BlogReq>({
     adminId: 0,
     title: "",
@@ -29,20 +30,24 @@ const BlogDashboard = () => {
   };
 
   const handleCurrentBlog = (blogId: number) => {
-    if (parseInt(currentBlog.blogId) !== blogId) {
-      if (confirm("Are you sure?")) {
-        setCurrentBlog(blogs.filter((b: Blog) => b.blogId === blogId)[0]);
-        navigate("/admin/blog/" + blogId)
-      }
-    } else {
-      navigate("/admin/blog/" + currentBlog.blogId)
-    }
-  };
+    const check = localStorage.getItem("currentBlog");
+    if (parseInt(currentBlog.blogId) !== blogId && check) {
+      confirm("Are you surrrrrrre?")
+    };
+    const newBlog = blogs.filter((b: Blog) => b.blogId === blogId)[0];
+    setCurrentBlog(newBlog);
+    navigate("/admin/blog/" + currentBlog.blogId)
+  }
 
   useEffect(() => {
     let sortedBlogs: Blog[] = blogs.sort((a: Blog, b: Blog) =>
       a.blogId > b.blogId ? 1 : b.blogId > a.blogId ? -1 : 0
     );
+    let id = localStorage.getItem("adminId");
+    if (id)
+    {
+      setNewBlog({ ...newBlog, adminId:parseInt(id)})
+      }
     console.log(sortedBlogs);
     setBlogs(sortedBlogs);
   }, []);

@@ -14,7 +14,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    setIsLoggedIn(!!localStorage.getItem("adminId"));
+    setIsLoggedIn(!!localStorage.getItem("email"));
   }, []);
   return (
 
