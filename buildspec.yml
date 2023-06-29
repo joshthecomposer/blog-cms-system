@@ -7,3 +7,6 @@ phases:
     commands:
       - dotnet restore
       - dotnet build
+  artifacts:
+    files:
+	  - '**/*'
