@@ -9,6 +9,6 @@ phases:
     commands:
       - dotnet restore
       - dotnet build
-artifacts: null
-files:
-  - .\VBHelloWorld\bin\Debug\*
+artifacts:
+  files:
+    - '**/*'
