@@ -8,7 +8,7 @@ phases:
   build:
     commands:
       - dotnet restore MyApp.csproj
-      - dotnet publish MyApp.csproj -c Release -o ./publish
+      - dotnet build MyApp.csproj
 artifacts:
   files:
-    - './publish/**/*'
+    - '**/*'
