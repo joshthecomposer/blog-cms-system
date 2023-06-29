@@ -286,10 +286,6 @@ psd
 thumb
 sketch
 
-wwwroot/client
-
-wwwroot/adminClient
-
 sdb.bat
 testProd.bat
 
