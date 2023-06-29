@@ -1,9 +1,9 @@
+---
 version: 0.2
 phases:
   install:
     commands:
-      - >-
-        curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin
+      - curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin
         --channel STS
   build:
     commands:
@@ -12,5 +12,5 @@ phases:
       - dotnet publish MyApp.csproj -c Release -o ./publish
 artifacts:
   files:
-    - '**/*'
+    - "**/*"
   base-directory: publish
