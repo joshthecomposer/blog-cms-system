@@ -4,8 +4,7 @@ phases:
     commands:
       - >-
         curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin
-        --version 7.0.0
-      - dotnet --version
+        --channel STS
   build:
     commands:
       - dotnet restore MyApp.csproj
