@@ -1,15 +1,9 @@
-// import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { Blog, Displayable } from "../types/Types";
-import { TwitterTweetEmbed } from "react-twitter-embed";
+import { Displayable } from "../types/Types";
 import AutoGrowingTextarea from "../components/AutoGrowingTextarea";
 import BlogEditorTool from "../components/BlogEditorTool";
 import useLocalStorage from "../hooks/useLocalStorage";
 
 const BlogView = () => {
-  const navigate = useNavigate();
-  const { blogId } = useParams();
-  const [blogs, setBlogs] = useLocalStorage("blogs", []);
 
   const [currentBlog, setCurrentBlog] = useLocalStorage("currentBlog", {});
 
@@ -72,7 +66,9 @@ const BlogView = () => {
                 case "Tweet":
                   return d.signature ? (
                     <div key={i} className="w-full">
-                      <TwitterTweetEmbed tweetId={d.signature} />
+                      {
+                        //TODO: Create a twitter embed component.
+                      }
                     </div>
                   ) : null;
               }
@@ -82,11 +78,5 @@ const BlogView = () => {
     </>
   );
 };
-
-// return c.textType == "header" ? (
-//   <AutoGrowingTextarea value={c.content} textType={"header"} />
-// ) : (
-//   <AutoGrowingTextarea value={c.content} textType={"paragraph"} />
-// );
 
 export default BlogView;
