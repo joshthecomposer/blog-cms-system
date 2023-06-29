@@ -11,4 +11,4 @@ phases:
       - dotnet publish --output ./publish
 artifacts:
   files:
-    - './publish/**/*'
+    - './bin/Debug/net7.0/publish/'
