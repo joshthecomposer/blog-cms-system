@@ -8,7 +8,7 @@ phases:
   build:
     commands:
       - dotnet restore
-      - dotnet publish --output ./publish
+      - dotnet publish
 artifacts:
   files:
     - './bin/Debug/net7.0/publish/'
