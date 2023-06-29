@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Blog } from "../types/Types";
 import useLocalStorage from "../hooks/useLocalStorage";
+import { Displayable } from "../types/Types";
 
 interface TAProps {
   value: string | undefined;
@@ -33,11 +34,23 @@ const AutoGrowingTextarea = (props: TAProps) => {
   ) => {
     // const textarea = event.target;
     setText(event.target.value);
+
   };
 
-  const toggleHighlighted = () => {
-    setHighlighted(!highlighted);
-  };
+  const handleTextFocus = () => {
+    setSaveButton(true)
+  }
+
+  const handleTextBlur = () => {
+    setSaveButton(false)
+    let disps: Displayable[] = currentBlog.displayables.filter((d:Displayable)=>d.displayableId !== displayableId)
+    let one  : Displayable= currentBlog.displayables.filter((d: Displayable) => d.displayableId === displayableId)[0]
+    one.content = text;
+    disps = [...disps, one].sort((a: Displayable, b: Displayable) =>
+    a.displayOrder > b.displayOrder ? 1 : b.displayOrder > a.displayOrder ? -1 : 0
+  );
+    setCurrentBlog({...currentBlog, displayables:disps})
+  }
 
   const confirmDelete = () => {
     if (confirm("Are you sure you want to delete this paragraph?")) {
@@ -48,20 +61,26 @@ const AutoGrowingTextarea = (props: TAProps) => {
             ...currentBlog,
             displayables: [
               ...currentBlog.displayables.filter(
-                (d) => (d.dataType === "Image" || d.dataType === "Tweet" || (d.displayableId !== displayableId && d.dataType === "TextBlock") )
+                (d) =>
+                  d.dataType === "Image" ||
+                  d.dataType === "Tweet" ||
+                  (d.displayableId !== displayableId &&
+                    d.dataType === "TextBlock")
               ),
             ],
           };
           setCurrentBlog(newCurrentBlog);
-            const updatedBlogList = [
-              ...blogs.filter((b: Blog) => b.blogId !== currentBlog.blogId),
-              newCurrentBlog,
-            ];
-            setBlogs(updatedBlogList);
+          const updatedBlogList = [
+            ...blogs.filter((b: Blog) => b.blogId !== currentBlog.blogId),
+            newCurrentBlog,
+          ];
+          setBlogs(updatedBlogList);
         })
         .catch((err) => console.log(err));
     }
   };
+
+  const [saveButton, setSaveButton] = useState(false);
 
   //TODO:  maybe blog view page should be a seperate query?
   //WE could do a rotating cache on the local storage where at most 2 blogs are stored instead of all of them? Then when the view blog is clicked it is checked against the cached blogs and if none, queried.
@@ -87,11 +106,22 @@ const AutoGrowingTextarea = (props: TAProps) => {
         }
         value={text}
         onChange={handleTextareaChange}
+        onFocus={handleTextFocus}
+        onBlur = {handleTextBlur}
         data-expandable
-      />
+      />{" "}
       <button
-        onMouseOver={toggleHighlighted}
-        onMouseLeave={toggleHighlighted}
+        onMouseOver={()=>setHighlighted(true)}
+        onMouseLeave={()=>setHighlighted(false)}
+        // onMouseDown={saveChanges}
+        className="bg-green-500 bg-opacity-90 absolute z-20 bottom-10 right-2 md:-right-10 rounded px-3 shadow-lg text-green-100 active:bg-red-600 active:bg-opacity-100"
+        style={{ display: saveButton ? "inline" : "none" }}
+      >
+        Save
+      </button>
+      <button
+        onMouseOver={()=>setHighlighted(true)}
+        onMouseLeave={()=>setHighlighted(false)}
         onMouseDown={confirmDelete}
         className="bg-red-500 bg-opacity-90 absolute z-20 bottom-2 right-2 md:-right-10 rounded px-3 shadow-lg text-red-100 active:bg-red-600 active:bg-opacity-100"
       >

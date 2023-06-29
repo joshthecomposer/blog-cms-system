@@ -1,11 +1,14 @@
 import { useState, ChangeEvent, useEffect } from "react";
 import { Blog, BlogReq } from "../types/Types";
 import { initializeNewBlog } from "../utils/apiRequests";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import useLocalStorage from "../hooks/useLocalStorage";
+import { useNavigate } from "react-router-dom";
 
 const BlogDashboard = () => {
-  const  [blogs, setBlogs]  = useLocalStorage("blogs", []);
+  const navigate = useNavigate()
+  const [blogs, setBlogs] = useLocalStorage("blogs", []);
+  const [currentBlog, setCurrentBlog] = useLocalStorage("currentBlog", {});
   const [newBlog, setNewBlog] = useState<BlogReq>({
     adminId: 0,
     title: "",
@@ -25,11 +28,24 @@ const BlogDashboard = () => {
     setNewBlog({ ...newBlog, [e.target.name]: e.target.value });
   };
 
+  const handleCurrentBlog = (blogId: number) => {
+    if (parseInt(currentBlog.blogId) !== blogId) {
+      if (confirm("Are you sure?")) {
+        setCurrentBlog(blogs.filter((b: Blog) => b.blogId === blogId)[0]);
+        navigate("/admin/blog/" + blogId)
+      }
+    } else {
+      navigate("/admin/blog/" + currentBlog.blogId)
+    }
+  };
+
   useEffect(() => {
-    let sortedBlogs: Blog[] = blogs.sort((a : Blog,b : Blog)=>(a.blogId > b.blogId) ? 1 : ((b.blogId > a.blogId)?-1 : 0))
+    let sortedBlogs: Blog[] = blogs.sort((a: Blog, b: Blog) =>
+      a.blogId > b.blogId ? 1 : b.blogId > a.blogId ? -1 : 0
+    );
     console.log(sortedBlogs);
-    setBlogs(sortedBlogs)
-  },[])
+    setBlogs(sortedBlogs);
+  }, []);
 
   return (
     <>
@@ -37,15 +53,18 @@ const BlogDashboard = () => {
       <div className="flex flex-col items-center">
         <table className="w-full border-collapse md:w-2/3">
           <tbody>
-            {blogs.map((b : Blog, i : number) => (
+            {blogs.map((b: Blog, i: number) => (
               <tr key={i}>
                 <td className="border-y text-xl p-5 w-full flex justify-between">
                   <p className="w-full">{b.title}</p>
-                  <Link to={"/admin/blog/" + b.blogId}>
-                    <button className="bg-indigo-500 text-indigo-100 rounded w-[80px]">
+                  <div>
+                    <button
+                      onClick={() => handleCurrentBlog(b.blogId)}
+                      className="bg-indigo-500 text-indigo-100 rounded w-[80px]"
+                    >
                       View
                     </button>
-                  </Link>
+                  </div>
                 </td>
               </tr>
             ))}
