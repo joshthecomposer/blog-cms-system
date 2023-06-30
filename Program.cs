@@ -8,11 +8,15 @@ using MyApp.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddJsonFile("appsettings.secrets.json", optional: true, reloadOnChange: true);
+
+Console.WriteLine(builder.Configuration["AppSecrets:HOST"] + " IS THE APP SECRETS HOST");
+
+
 var connectionString =
-    $"Host={builder.Configuration["RDS_HOSTNAME"]};Port={builder.Configuration["RDS_PORT"]};Database={builder.Configuration["RDS_DB_NAME"]};Username={builder.Configuration["RDS_USERNAME"]};Password={builder.Configuration["RDS_PASSWORD"]}";
+		$"Host={builder.Configuration["AppSecrets:HOST"]};Port={builder.Configuration["AppSecrets:PORT"]};Database={builder.Configuration["AppSecrets:DB"]};Username={builder.Configuration["AppSecrets:USER"]};Password={builder.Configuration["AppSecrets:PASS"]}";
 
-
-var jwtSecret = builder.Configuration["JWTSecret"];
+var jwtSecret = builder.Configuration["AppSecrets:JWTSecret"];
 
 var key = Encoding.ASCII.GetBytes(jwtSecret!);
 // Add services to the container.
@@ -44,15 +48,7 @@ builder.Services.AddAuthentication(options =>
         };
     });
 // Enable CORS
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowOrigins", builder =>
-    {
-        builder.WithOrigins("http://localhost:8000", "http://localhost:8080")
-               .AllowAnyHeader()
-               .AllowAnyMethod();
-    });
-});
+builder.Services.AddCors();
 
 var app = builder.Build();
 

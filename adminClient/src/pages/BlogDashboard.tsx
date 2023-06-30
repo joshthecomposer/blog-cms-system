@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 const BlogDashboard = () => {
   const navigate = useNavigate()
   const [blogs, setBlogs] = useLocalStorage("blogs", []);
+  //@ts-ignore
   const [currentBlog, setCurrentBlog] = useLocalStorage("currentBlog", {});
 
   const [newBlog, setNewBlog] = useState<BlogReq>({
@@ -28,15 +29,16 @@ const BlogDashboard = () => {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setNewBlog({ ...newBlog, [e.target.name]: e.target.value });
   };
-
+  //TODO: make a custom alert box instead
   const handleCurrentBlog = (blogId: number) => {
-    const check = localStorage.getItem("currentBlog");
-    if (parseInt(currentBlog.blogId) !== blogId && check) {
-      confirm("Are you surrrrrrre?")
-    };
+    if (Object.keys(currentBlog).length!==0) {
+      if (parseInt(currentBlog.blogId) !== blogId && !confirm("Are you surrrrrrre?")) {
+        return
+      };
+    }
     const newBlog = blogs.filter((b: Blog) => b.blogId === blogId)[0];
     setCurrentBlog(newBlog);
-    navigate("/admin/blog/" + currentBlog.blogId)
+    navigate("/admin/blog/" + newBlog.blogId)
   }
 
   useEffect(() => {
@@ -50,6 +52,7 @@ const BlogDashboard = () => {
       }
     console.log(sortedBlogs);
     setBlogs(sortedBlogs);
+
   }, []);
 
   return (

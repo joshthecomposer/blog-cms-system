@@ -1,8 +1,33 @@
 import { BiX, BiEdit } from "react-icons/bi";
 import { useState } from "react";
+import useLocalStorage from "../hooks/useLocalStorage";
+
+interface IDisplayable {
+  displayableId?: number
+  content?: string
+  url?: string
+  mediaType?: string
+  caption?: string
+textType?: string
+  signature?: string
+
+  blogId: number
+  displayOrder: number
+  dataType:string
+}
+
 const BlogEditorTool = () => {
   const [editorShowing, setEditorShowing] = useState<boolean>(false);
+  const [currentBlog, setCurrentBlog] = useLocalStorage("currentBlog", {})
 
+  const addContent = (contentType : string) => {
+    switch (contentType) {
+      case "header":
+        currentBlog.displayables.Add({
+
+        })
+    }
+  }
   const toggleEditor = () => {
     return setEditorShowing(!editorShowing);
   };
@@ -23,10 +48,10 @@ const BlogEditorTool = () => {
       >
         <h3 className="text-3xl text-neutral-700">Add Content</h3>
         <hr />
-        <h3 className="text-3xl font-bold w-full border-[1px] rounded hover:bg-neutral-100 hover:cursor-pointer">
+        <h3 onClick={()=>addContent("header")} className="text-3xl font-bold w-full border-[1px] rounded hover:bg-neutral-100 hover:cursor-pointer">
           &lt;h3&gt;Header&lt;/h3&gt;
         </h3>
-        <p className="text-[20px] w-full border-[1px] rounded hover:bg-neutral-100 hover:cursor-pointer">
+        <p onClick={()=>addContent("paragraph")} className="text-[20px] w-full border-[1px] rounded hover:bg-neutral-100 hover:cursor-pointer">
           &lt;p&gt;Paragraph&lt;/p&gt;
         </p>
         <form className="border-[1px] rounded shadow-sm py-3 px-2">

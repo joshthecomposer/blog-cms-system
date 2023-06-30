@@ -295,4 +295,6 @@ secrets.json
 setSecrets.sh
 rdsSecrets.txt
 setEnvironmentVars.bat
+
+appsettings.secrets.json
 # End of https://www.toptal.com/developers/gitignore/api/aspnetcore,react

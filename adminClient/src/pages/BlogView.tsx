@@ -3,6 +3,7 @@ import AutoGrowingTextarea from "../components/AutoGrowingTextarea";
 import BlogEditorTool from "../components/BlogEditorTool";
 import useLocalStorage from "../hooks/useLocalStorage";
 
+
 const BlogView = () => {
 
   const [currentBlog, setCurrentBlog] = useLocalStorage("currentBlog", {});
