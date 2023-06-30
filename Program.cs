@@ -7,8 +7,9 @@ using System.Text;
 using MyApp.Data;
 
 var builder = WebApplication.CreateBuilder(args);
-//postgresql://postgres:admin@localhost:5432/budhub_db
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+var connectionString = $"Host={builder.Configuration["RDS_HOSTNAME"]};Port={builder.Configuration["RDS_PORT"]};Database={builder.Configuration["RDS_DB_NAME"]};Username={builder.Configuration["RDS_USERNAME"]};Password={builder.Configuration["RDS_PASSWORD"]}";
+
 var jwtSecret = builder.Configuration["JWTSecret"];
 var key = Encoding.ASCII.GetBytes(jwtSecret!);
 // Add services to the container.
