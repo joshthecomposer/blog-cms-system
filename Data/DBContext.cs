@@ -4,6 +4,7 @@ using MyApp.Models.Auth;
 using MyApp.Models.Content;
 
 namespace MyApp.Data;
+
 public class DBContext : DbContext
 {
     public DBContext(DbContextOptions options) : base(options) { }

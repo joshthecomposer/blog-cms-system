@@ -292,4 +292,8 @@ testProd.bat
 Migrations
 
 secrets.env
+
+secrets.json
+setSecrets.sh
+rdsSecrets.txt
 # End of https://www.toptal.com/developers/gitignore/api/aspnetcore,react
