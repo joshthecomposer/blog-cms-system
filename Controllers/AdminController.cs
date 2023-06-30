@@ -141,7 +141,7 @@ public class AdminController : ControllerBase
     private string GenerateAccessToken(int adminId)
     {
         JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
-        string? encKey = _config["Encryption_Key"];
+        string? encKey = _config["JWTSecret"];
         byte[] key = Encoding.ASCII.GetBytes(encKey!);
         SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
         {
