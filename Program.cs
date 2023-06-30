@@ -11,11 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString =
     $"Host={builder.Configuration["RDS_HOSTNAME"]};Port={builder.Configuration["RDS_PORT"]};Database={builder.Configuration["RDS_DB_NAME"]};Username={builder.Configuration["RDS_USERNAME"]};Password={builder.Configuration["RDS_PASSWORD"]}";
 
-    Console.WriteLine(builder.Configuration["RDS_HOSTNAME"]);
 
 var jwtSecret = builder.Configuration["JWTSecret"];
 
-Console.WriteLine(jwtSecret);
 var key = Encoding.ASCII.GetBytes(jwtSecret!);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
