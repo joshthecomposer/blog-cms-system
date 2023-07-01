@@ -8,6 +8,7 @@ import NavDrawer from "./components/NavDrawer";
 // import BlogContext from "./context/BlogContext";
 // import { Blog } from "./types/Types";
 import BlogView from "./pages/BlogView";
+import ReorderableTextareaList from "./pages/ReorderableTextareaList";
 // import useLocalStorage from "./hooks/useLocalStorage";
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
             ) : null}
             <Route path="/admin" element={<LoginForm />} />
             <Route path="/admin/blog/:blogId" element={<BlogView />} />
+            <Route path="/drag/" element={<ReorderableTextareaList />} />
             <Route path="/admin/*" element={<CatchAll />} />
           </Routes>
         </div>

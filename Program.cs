@@ -22,28 +22,28 @@ builder.Services.AddSession();
 
 builder.Services.AddDbContext<DBContext>(options =>
 {
-  options.UseNpgsql(connectionString);
+	options.UseNpgsql(connectionString);
 });
 
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-    .AddJwtBearer("Bearer",options =>
-    {
-        options.RequireHttpsMetadata = true;
-        options.SaveToken = true;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(key),
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero
-        };
-    });
+	.AddJwtBearer("Bearer", options =>
+	{
+		options.RequireHttpsMetadata = true;
+		options.SaveToken = true;
+		options.TokenValidationParameters = new TokenValidationParameters
+		{
+			ValidateIssuerSigningKey = true,
+			IssuerSigningKey = new SymmetricSecurityKey(key),
+			ValidateIssuer = false,
+			ValidateAudience = false,
+			ValidateLifetime = true,
+			ClockSkew = TimeSpan.Zero
+		};
+	});
 // Enable CORS
 builder.Services.AddCors();
 
@@ -52,9 +52,9 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-  app.UseExceptionHandler("/Home/Error");
-  // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-  app.UseHsts();
+	app.UseExceptionHandler("/Home/Error");
+	// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+	app.UseHsts();
 }
 
 // app.UseHttpsRedirection();
@@ -68,15 +68,15 @@ app.UseCors("AllowOrigins");
 app.UseAuthorization();
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "/",
-    defaults: new { controller = "Public", action = "Index" }
+	name: "default",
+	pattern: "/",
+	defaults: new { controller = "Public", action = "Index" }
 );
 
 app.MapControllerRoute(
-    name: "admin",
-    pattern: "/admin/{*url}",
-    defaults: new { controller = "Public", action = "Admin" }
+	name: "admin",
+	pattern: "/admin/{*url}",
+	defaults: new { controller = "Public", action = "Admin" }
 );
 
 // app.MapControllerRoute(

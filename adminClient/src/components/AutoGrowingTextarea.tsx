@@ -8,10 +8,11 @@ interface TAProps {
   displayable: Displayable;
   setCurrentBlog: Function;
   currentBlog: Blog;
+  textType: string | undefined
 }
 
 const AutoGrowingTextarea = (props: TAProps) => {
-  const { displayable, setCurrentBlog, currentBlog } = props;
+  const { displayable, setCurrentBlog, currentBlog, textType } = props;
   const [text, setText] = useState("");
   const [textareaHeight, setTextareaHeight] = useState("auto");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -148,7 +149,7 @@ const AutoGrowingTextarea = (props: TAProps) => {
         data-expandable
         onMouseOver={() => setHighlighted(true)}
         onMouseLeave={() => setHighlighted(false)}
-        className="w-full"
+        className={textType == "paragraph" ? "text-[20px] w-full rounded relative z-10 w-full hover:cursor-pointer" : "text-2xl font-bold hover:cursor-pointer w-full"}
       />{" "}
       <button
         onMouseDown={handleSaveClicked}

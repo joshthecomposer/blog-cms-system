@@ -3,11 +3,40 @@ import AutoGrowingTextarea from "../components/AutoGrowingTextarea";
 import BlogEditorTool from "../components/BlogEditorTool";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { useEffect } from "react";
+// import { useState } from "react";
 
 const BlogView = () => {
   const [currentBlog, setCurrentBlog] = useLocalStorage("currentBlog", {});
-  useEffect(() => {
-  }, [currentBlog]);
+  useEffect(() => {}, [currentBlog]);
+
+  const onDragOver = (event: any) => {
+    event.preventDefault();
+  };
+
+  const onDragStart = (event: any, index: any) => {
+    event.dataTransfer.setData("itemIndex", index);
+  };
+
+  const onDrop = (event: any, index: any) => {
+    const draggingIndex = event.dataTransfer.getData("itemIndex");
+    const tempList = [...currentBlog.displayables];
+
+    // Swap elements
+    let temp = tempList[draggingIndex];
+    tempList[draggingIndex] = tempList[index];
+    tempList[index] = temp;
+    console.log(tempList);
+    let order = 0;
+    tempList.forEach((d) => {
+      d.displayOrder = order + 10;
+      order += 10;
+    });
+    console.log(tempList);
+    setCurrentBlog({ ...currentBlog, displayables: [...tempList] });
+  };
+
+  useEffect(() => {}, [currentBlog]);
+
   return (
     <>
       <BlogEditorTool
@@ -23,50 +52,40 @@ const BlogView = () => {
         <div className="flex flex-col gap-5 relative w-full">
           {currentBlog.displayables &&
             currentBlog.displayables.length > 0 &&
-            currentBlog.displayables.map((d: Displayable) => {
+            currentBlog.displayables.map((d: Displayable, index: any) => {
               switch (d.dataType) {
                 case "TextBlock":
-                  switch (d.textType) {
-                    case "header":
-                      return (
-                        <div className="text-2xl font-bold" key={`${d.displayableId}-${d.dataType}`}>
-                          <AutoGrowingTextarea
-                            displayable={d}
-                            setCurrentBlog={setCurrentBlog}
-                            currentBlog={currentBlog}
-                          />
-                        </div>
-                      );
-                    case "paragraph":
-                      return (
-                        <div className="text-[20px] w-full rounded relative z-10 w-full" key={`${d.displayableId}-${d.dataType}`}>
-                          <AutoGrowingTextarea
-                            displayable={d}
-                            setCurrentBlog={setCurrentBlog}
-                            currentBlog={currentBlog}
-                          />
-                        </div>
-                      );
-                    case "quote":
-                      return null;
-                    default:
-                      return null;
-                  }
+                  return (
+                    <div
+                      key={`${d.displayableId}-${d.dataType}`}
+                      onDragOver={(event) => onDragOver(event)}
+                      onDragStart={(event) => onDragStart(event, index)}
+                      onDrop={(event) => onDrop(event, index)}
+                      draggable
+                    >
+                      <AutoGrowingTextarea
+                        displayable={d}
+                        setCurrentBlog={setCurrentBlog}
+                        currentBlog={currentBlog}
+                        textType={d.textType}
+                      />
+                    </div>
+                  );
                 case "Image":
                   return (
                     <img
                       key={`${d.displayableId}-${d.dataType}`}
-                      className="w-full self-center relative"
+                      onDragOver={(event) => onDragOver(event)}
+                      onDragStart={(event) => onDragStart(event, index)}
+                      onDrop={(event) => onDrop(event, index)}
+                      draggable
                       src={d.url}
+                      className="w-full"
                       alt=""
                     />
-                  )
+                  );
                 default:
                   return null;
-                case "Tweet":
-                  return (
-                    null
-                  );
               }
             })}
         </div>
