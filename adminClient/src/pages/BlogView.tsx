@@ -7,10 +7,11 @@ import { useEffect } from "react";
 
 const BlogView = () => {
   const [currentBlog, setCurrentBlog] = useLocalStorage("currentBlog", {});
-  useEffect(() => {}, [currentBlog]);
+  useEffect(() => { }, [currentBlog]);
 
   const onDragOver = (event: any) => {
     event.preventDefault();
+
   };
 
   const onDragStart = (event: any, index: any) => {
@@ -18,14 +19,13 @@ const BlogView = () => {
   };
 
   const onDrop = (event: any, index: any) => {
-    const draggingIndex = event.dataTransfer.getData("itemIndex");
-    const tempList = [...currentBlog.displayables];
+    let draggedFromIndex = event.dataTransfer.getData("itemIndex");
+    let tempList = [...currentBlog.displayables];
+    let draggedItem = tempList[draggedFromIndex];
 
-    // Swap elements
-    let temp = tempList[draggingIndex];
-    tempList[draggingIndex] = tempList[index];
-    tempList[index] = temp;
-    console.log(tempList);
+    console.log(draggedFromIndex, "dragging index")
+    tempList.splice(draggedFromIndex, 1);
+    tempList.splice(index, 0, draggedItem);
     let order = 0;
     tempList.forEach((d) => {
       d.displayOrder = order + 10;
