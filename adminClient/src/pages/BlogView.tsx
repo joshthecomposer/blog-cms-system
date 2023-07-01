@@ -2,35 +2,36 @@ import { Displayable } from "../types/Types";
 import AutoGrowingTextarea from "../components/AutoGrowingTextarea";
 import BlogEditorTool from "../components/BlogEditorTool";
 import useLocalStorage from "../hooks/useLocalStorage";
-
+import { useEffect } from "react";
 
 const BlogView = () => {
-
   const [currentBlog, setCurrentBlog] = useLocalStorage("currentBlog", {});
-
+  useEffect(() => {
+  }, [currentBlog]);
   return (
     <>
-      <BlogEditorTool />
+      <BlogEditorTool
+        currentBlog={currentBlog}
+        setCurrentBlog={setCurrentBlog}
+      />
 
       <div className="self-center items-center flex flex-col m-auto py-10 w-full md:px-0 md:w-2/3 2xl:w-1/3 relative z-[1]">
         <h1 className="text-3xl text-center sm:text-4xl 2xl:text-5xl font-bel w-full">
           {currentBlog.title}
         </h1>
         <hr className="my-10 w-full self-center" />
-        <div className="flex flex-col gap-5 relative">
+        <div className="flex flex-col gap-5 relative w-full">
           {currentBlog.displayables &&
             currentBlog.displayables.length > 0 &&
-            currentBlog.displayables.map((d: Displayable, i: number) => {
+            currentBlog.displayables.map((d: Displayable) => {
               switch (d.dataType) {
                 case "TextBlock":
                   switch (d.textType) {
                     case "header":
                       return (
-                        <div key={i}>
+                        <div className="text-2xl font-bold" key={`${d.displayableId}-${d.dataType}`}>
                           <AutoGrowingTextarea
-                            value={d.content}
-                            textType={"header"}
-                            displayableId={d.displayableId}
+                            displayable={d}
                             setCurrentBlog={setCurrentBlog}
                             currentBlog={currentBlog}
                           />
@@ -38,11 +39,9 @@ const BlogView = () => {
                       );
                     case "paragraph":
                       return (
-                        <div key={i}>
+                        <div className="text-[20px] w-full rounded relative z-10 w-full" key={`${d.displayableId}-${d.dataType}`}>
                           <AutoGrowingTextarea
-                            value={d.content}
-                            textType={"paragraph"}
-                            displayableId={d.displayableId}
+                            displayable={d}
                             setCurrentBlog={setCurrentBlog}
                             currentBlog={currentBlog}
                           />
@@ -56,22 +55,18 @@ const BlogView = () => {
                 case "Image":
                   return (
                     <img
-                      key={i}
+                      key={`${d.displayableId}-${d.dataType}`}
                       className="w-full self-center relative"
                       src={d.url}
                       alt=""
                     />
-                  );
+                  )
                 default:
                   return null;
                 case "Tweet":
-                  return d.signature ? (
-                    <div key={i} className="w-full">
-                      {
-                        //TODO: Create a twitter embed component.
-                      }
-                    </div>
-                  ) : null;
+                  return (
+                    null
+                  );
               }
             })}
         </div>

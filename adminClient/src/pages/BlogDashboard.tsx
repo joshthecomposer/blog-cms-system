@@ -4,56 +4,37 @@ import { initializeNewBlog } from "../utils/apiRequests";
 // import { Link } from "react-router-dom";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { useNavigate } from "react-router-dom";
+import NewBlogForm from "../components/NewBlogForm";
 
 const BlogDashboard = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [blogs, setBlogs] = useLocalStorage("blogs", []);
   //@ts-ignore
   const [currentBlog, setCurrentBlog] = useLocalStorage("currentBlog", {});
 
-  const [newBlog, setNewBlog] = useState<BlogReq>({
-    adminId: 0,
-    title: "",
-  });
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
-    try {
-      const res: any = await initializeNewBlog(newBlog);
-      const updatedBlogs = [...blogs, res];
-      setBlogs(updatedBlogs);
-      setNewBlog({ ...newBlog, title: "" });
-    } catch (err: any) {}
-  };
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setNewBlog({ ...newBlog, [e.target.name]: e.target.value });
-  };
   //TODO: make a custom alert box instead
   const handleCurrentBlog = (blogId: number) => {
-    if (Object.keys(currentBlog).length!==0) {
-      if (parseInt(currentBlog.blogId) !== blogId && !confirm("Are you surrrrrrre?")) {
-        return
-      };
-    }
-    const newBlog = blogs.filter((b: Blog) => b.blogId === blogId)[0];
-    setCurrentBlog(newBlog);
-    navigate("/admin/blog/" + newBlog.blogId)
-  }
-
-  useEffect(() => {
-    let sortedBlogs: Blog[] = blogs.sort((a: Blog, b: Blog) =>
-      a.blogId > b.blogId ? 1 : b.blogId > a.blogId ? -1 : 0
-    );
-    let id = localStorage.getItem("adminId");
-    if (id)
-    {
-      setNewBlog({ ...newBlog, adminId:parseInt(id)})
+    if (parseInt(currentBlog.blogId) === blogId) {
+      navigate("/admin/blog/" + blogId);
+    } else {
+      const newBlog = blogs.find((b: Blog) => b.blogId === blogId);
+      if (newBlog) {
+        setCurrentBlog(newBlog);
+        navigate("/admin/blog/" + newBlog.blogId);
+      } else {
+        console.error("No blog found with id ", blogId)
       }
-    console.log(sortedBlogs);
-    setBlogs(sortedBlogs);
+    }
+  };
 
-  }, []);
+  // useEffect(() => {
+  //   let sortedBlogs: Blog[] = blogs.sort((a: Blog, b: Blog) =>
+  //     a.blogId > b.blogId ? 1 : b.blogId > a.blogId ? -1 : 0
+  //   );
+
+  //   setBlogs(sortedBlogs);
+  // }, []);
 
   return (
     <>
@@ -78,22 +59,7 @@ const BlogDashboard = () => {
             ))}
             <tr>
               <td className="border-y text-xl p-5 w-full">
-                <form
-                  className="flex justify-between w-full"
-                  onSubmit={handleSubmit}
-                >
-                  <input
-                    type="text"
-                    name="title"
-                    value={newBlog.title}
-                    onChange={handleChange}
-                    placeholder="New blog title..."
-                    className="text-xl w-full"
-                  />
-                  <button className="bg-emerald-500 text-indigo-100 rounded w-[80px]">
-                    New
-                  </button>
-                </form>
+                  <NewBlogForm />
               </td>
             </tr>
           </tbody>

@@ -9,7 +9,6 @@ using MyApp.Data;
 using MyApp.DTOs;
 
 namespace MyApp.Controllers;
-[Authorize]
 [ApiController]
 [Route("api/blog")]
 public class BlogController : Controller
@@ -24,7 +23,7 @@ public class BlogController : Controller
 	[HttpPost]
 	public async Task<ActionResult<Blog>> InitializeBlog(Blog newBlog)
 	{
-
+		//TODO: THis will have the ID in the auth headers, parse it and all that.
 		if (ModelState.IsValid)
 		{
 			// bool isValid = AdminController.VerifyClaim(AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]), newBlog.AdminId);
@@ -35,7 +34,7 @@ public class BlogController : Controller
 			await _db.Blogs.AddAsync(newBlog);
 			await _db.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(GetOne), new { blogId = newBlog.BlogId }, newBlog);
+			return CreatedAtAction(nameof(GetOne), new { blogId = newBlog.BlogId }, new BlogWithOrderedContentDto(newBlog));
 		}
 		return BadRequest("Something went wrong.");
 	}
@@ -78,5 +77,4 @@ public class BlogController : Controller
 
 		return processedBlogs;
 	}
-
 }

@@ -1,10 +1,11 @@
 using MyApp.Models.Content;
+using System.Text.Json.Serialization;
 namespace MyApp.DTOs;
 public class DisplayableDto
 {
 	public int DisplayableId { get; set; }
 	public int DisplayOrder { get; set; }
-	public string DataType { get; set; }
+	public string DataType { get; set; } = "TextBlock";
 	public int BlogId { get; set; }
 
 	//Media specific properties.
@@ -18,9 +19,8 @@ public class DisplayableDto
 	//Tweet specific properties
 	public string? Signature { get; set; }
 
-
-
-
+	[JsonConstructor]
+	public DisplayableDto() { }
 
 	public DisplayableDto(TextBlock textBlock)
 	{

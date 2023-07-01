@@ -73,7 +73,7 @@ public static class ModelBuilderExtensions
             {
                 TextBlockId = 4,
                 Content = "The eagles, led by Gwaihir and their lord Thorondor, are noble creatures with their own motivations and allegiances. They are not mere transportation devices but highly intelligent beings with their own concerns and priorities. Their primary role is to serve as messengers and scouts rather than a means of transportation for the characters' convenience.",
-                DisplayOrder = 60,
+                DisplayOrder = 50,
                 TextType = "paragraph",
                 BlogId = 1
             },
@@ -81,7 +81,7 @@ public static class ModelBuilderExtensions
 			{
                 TextBlockId = 5,
                 Content = "The Corruption of the Ring:",
-                DisplayOrder = 70,
+                DisplayOrder = 60,
                 TextType = "header",
                 BlogId = 1
             },

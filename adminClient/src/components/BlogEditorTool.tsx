@@ -1,36 +1,64 @@
 import { BiX, BiEdit } from "react-icons/bi";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
+import { Blog, TextBlock } from "../types/Types";
+import { tryCreateTextBlock } from "../utils/apiRequests";
 
 interface IDisplayable {
-  displayableId?: number
-  content?: string
-  url?: string
-  mediaType?: string
-  caption?: string
-textType?: string
-  signature?: string
+  displayableId?: number;
+  content?: string;
+  url?: string;
+  caption?: string;
+  textType?: string;
+  signature?: string;
 
-  blogId: number
-  displayOrder: number
-  dataType:string
+  blogId: number;
+  displayOrder: number;
+  dataType: string;
 }
 
-const BlogEditorTool = () => {
+interface BlogEditorProps {
+  currentBlog: Blog;
+  setCurrentBlog: Function;
+}
+
+const BlogEditorTool = (props: BlogEditorProps) => {
+  const { currentBlog, setCurrentBlog } = props;
+  const [blogs, setBlogs] = useLocalStorage("blogs", []);
   const [editorShowing, setEditorShowing] = useState<boolean>(false);
-  const [currentBlog, setCurrentBlog] = useLocalStorage("currentBlog", {})
 
-  const addContent = (contentType : string) => {
-    switch (contentType) {
-      case "header":
-        currentBlog.displayables.Add({
-
-        })
+  const addTextBlock = async (contentType: string) => {
+    let newDisplayOrder: number = 1;
+    if (currentBlog.displayables.length > 0) {
+      newDisplayOrder =
+        currentBlog.displayables[currentBlog.displayables.length - 1]
+          .displayOrder + 1;
     }
-  }
+    let newText: TextBlock = {
+      content: "...",
+      blogId: currentBlog.blogId,
+      displayOrder: newDisplayOrder,
+      textType: contentType,
+    };
+
+    try {
+      const res = await tryCreateTextBlock(newText);
+      const blog = res
+      setCurrentBlog(blog);
+      const filtered = blogs.filter((b : Blog) => b.blogId !== currentBlog.blogId)
+      setBlogs([...filtered, blog])
+    } catch (err) {
+      console.log(err);
+      return;
+    }
+  };
+
   const toggleEditor = () => {
     return setEditorShowing(!editorShowing);
   };
+
+  useEffect(() => {}, [currentBlog]);
+
   return (
     <div className="fixed right-0 top-50 z-[999] bg-white">
       {editorShowing ? (
@@ -39,7 +67,10 @@ const BlogEditorTool = () => {
         </button>
       ) : (
         <button className="absolute right-2 top-2 w-[50px] h-[50px]">
-          <BiEdit className="w-full h-full bg-white bg-opacity-80  rounded" onClick={toggleEditor} />
+          <BiEdit
+            className="w-full h-full bg-white bg-opacity-80  rounded"
+            onClick={toggleEditor}
+          />
         </button>
       )}
       <div
@@ -48,10 +79,16 @@ const BlogEditorTool = () => {
       >
         <h3 className="text-3xl text-neutral-700">Add Content</h3>
         <hr />
-        <h3 onClick={()=>addContent("header")} className="text-3xl font-bold w-full border-[1px] rounded hover:bg-neutral-100 hover:cursor-pointer">
+        <h3
+          onClick={() => addTextBlock("header")}
+          className="text-3xl font-bold w-full border-[1px] rounded hover:bg-neutral-100 hover:cursor-pointer"
+        >
           &lt;h3&gt;Header&lt;/h3&gt;
         </h3>
-        <p onClick={()=>addContent("paragraph")} className="text-[20px] w-full border-[1px] rounded hover:bg-neutral-100 hover:cursor-pointer">
+        <p
+          onClick={() => addTextBlock("paragraph")}
+          className="text-[20px] w-full border-[1px] rounded hover:bg-neutral-100 hover:cursor-pointer"
+        >
           &lt;p&gt;Paragraph&lt;/p&gt;
         </p>
         <form className="border-[1px] rounded shadow-sm py-3 px-2">
@@ -85,8 +122,7 @@ const BlogEditorTool = () => {
           </div>
         </form>
       </div>
-
-  </div>
+    </div>
   );
 };
 

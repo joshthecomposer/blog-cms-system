@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Blog, Displayable, TextBlock } from "../types/Types";
 
 interface LoginUser {
   email: string;
@@ -25,7 +26,7 @@ const apiClient = axios.create({
 
 const config = {
   headers: {
-    Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+    Authorization: `Bearer ${localStorage.getItem("jwt")}`
   },
 };
 
@@ -41,11 +42,7 @@ export const adminLoginRequest = async (loginUser: LoginUser) => {
 };
 
 export const initializeNewBlog = async (initBlog: InitBlog) => {
-  const adminId = localStorage.getItem("adminId");
-  if (adminId == null) throw Error("Illegal");
-
-  initBlog.adminId = parseInt(adminId);
-
+  //TODO: This sends json token, no adminId. Parse the adminID on the token.
   return apiClient
     .post("/blog", initBlog, config)
     .then((res) => res.data)
@@ -54,11 +51,29 @@ export const initializeNewBlog = async (initBlog: InitBlog) => {
     });
 };
 
-export const deleteTextBlock = async (textBlockId: number, blogId: number) => {
+export const tryCreateTextBlock = async (textBlock: TextBlock) => {
   return apiClient
-    .delete(`/content/text/${textBlockId}/${blogId}`)
+    .post(`/content/text`, textBlock)
+    .then((res) => res.data)
+    .catch((err) => {
+      throw err.response.data.errors;
+    });
+}
+
+export const deleteTextBlock = async (textBlock: Displayable) => {
+  return apiClient
+    .delete(`/content/text`, {data: textBlock})
     .then((res) => res.data)
     .catch((err) => {
       throw err.response.data.errors;
     });
 };
+
+export const tryUpdateBlog = async (textBlock:Displayable) => {
+  return apiClient
+    .put(`/content/text`, textBlock)
+    .then((res) => res.data)
+    .catch((err) => {
+      throw err.response.status;
+    })
+}

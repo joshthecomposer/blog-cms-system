@@ -17,5 +17,4 @@ public class Blog : BaseEntity
   public ICollection<Image> Images { get; set; } = new List<Image>();
   public ICollection<TextBlock> TextBlocks { get; set; } = new List<TextBlock>();
   public ICollection<Tweet> Tweets { get; set; } = new List<Tweet>();
-
 }

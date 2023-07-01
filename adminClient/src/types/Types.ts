@@ -22,14 +22,14 @@ export type Displayable = {
     dataType:string
 }
 
-// export type TextBlock = {
-//     textBlockId: number;
-//     content: string;
-//     displayOrder: number;
-//     textType: string;
+export type TextBlock = {
+    textBlockId?: number;
+    content: string;
+    displayOrder: number;
+    textType: string;
 
-//     blogId: number;
-// }
+    blogId: number;
+}
 
 // export type Media = {
 //     mediaId: number;

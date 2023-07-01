@@ -32,7 +32,6 @@ const LoginForm = () => {
     e.preventDefault();
     try {
       const res: any = await adminLoginRequest(loginUser);
-      console.log(res);
       handleLogin(res);
       setBlogs(res.blogs);
       setIsLoggedIn(true);

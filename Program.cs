@@ -10,9 +10,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddJsonFile("appsettings.secrets.json", optional: true, reloadOnChange: true);
 
-Console.WriteLine(builder.Configuration["AppSecrets:HOST"] + " IS THE APP SECRETS HOST");
-
-
 var connectionString =
 		$"Host={builder.Configuration["AppSecrets:HOST"]};Port={builder.Configuration["AppSecrets:PORT"]};Database={builder.Configuration["AppSecrets:DB"]};Username={builder.Configuration["AppSecrets:USER"]};Password={builder.Configuration["AppSecrets:PASS"]}";
 
@@ -82,10 +79,10 @@ app.MapControllerRoute(
     defaults: new { controller = "Public", action = "Admin" }
 );
 
-app.MapControllerRoute(
-    name: "CatchAll",
-    pattern: "{*url}",
-    defaults: new { controller = "Public", action = "CatchRoute" }
-);
+// app.MapControllerRoute(
+//     name: "CatchAll",
+//     pattern: "{*url}",
+//     defaults: new { controller = "Public", action = "CatchRoute" }
+// );
 
 app.Run();

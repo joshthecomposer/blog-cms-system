@@ -23,7 +23,7 @@ public class ContentController : ControllerBase
 	}
 
 	[HttpPost("text")]
-	public async Task<ActionResult<TextBlock>> CreateTextBlock(TextBlock newText)
+	public async Task<ActionResult<BlogWithOrderedContentDto>> CreateTextBlock([FromBody]TextBlock newText)
 	{
 		if (ModelState.IsValid)
 		{
@@ -31,7 +31,12 @@ public class ContentController : ControllerBase
 
 			await _db.TextBlocks.AddAsync(newText);
 			await _db.SaveChangesAsync();
-			return CreatedAtAction(nameof(GetTextById), new { id = newText.TextBlockId }, newText);
+			var blog = await _db.Blogs.Where(b => b.BlogId == newText.BlogId).FirstOrDefaultAsync();
+			if (blog != null)
+			{
+				return new BlogWithOrderedContentDto(blog);
+
+			}
 		}
 		return BadRequest(ModelState);
 	}
@@ -163,17 +168,39 @@ public class ContentController : ControllerBase
 		return displayables;
 	}
 
-	[HttpDelete("text/{textBlockId}/{blogId}")]
-	public async Task<ActionResult<BlogWithOrderedContentDto>> DeleteTextBlockById(int blogId, int textBlockId)
+	[HttpPut("text")]
+	public async Task<ActionResult<BlogWithOrderedContentDto>> UpdateTextBlockContent([FromBody]DisplayableDto displayable)
+	{
+		var oldTextBlock = await _db.TextBlocks.Where(t => t.TextBlockId == displayable.DisplayableId).FirstOrDefaultAsync();
+		if (oldTextBlock != null)
+		{
+			oldTextBlock.Content = displayable.Content!;
+			await _db.SaveChangesAsync();
+		}
+		var blog = await _db.Blogs
+			.Include(b => b.TextBlocks)
+			.Include(b => b.Images)
+			.Include(b => b.Tweets)
+			.Where(b => b.BlogId == displayable.BlogId)
+			.FirstOrDefaultAsync();
+		if (blog != null)
+		{
+			return new BlogWithOrderedContentDto(blog);
+		}
+		return BadRequest();
+	}
+
+	[HttpDelete("text")]
+	public async Task<ActionResult<BlogWithOrderedContentDto>> DeleteTextBlockById([FromBody]DisplayableDto input)
 	{
 		var blog = await _db.Blogs
 		.Include(b => b.TextBlocks)
 		.Include(b=>b.Images)
 		.Include(b=>b.Tweets)
-		.SingleOrDefaultAsync(b => b.BlogId == blogId);
+		.SingleOrDefaultAsync(b => b.BlogId == input.BlogId);
 		if (blog != null)
 		{
-			var textToDelete = blog.TextBlocks.Where(t => t.TextBlockId == textBlockId).SingleOrDefault();
+			var textToDelete = blog.TextBlocks.Where(t => t.TextBlockId == input.DisplayableId).SingleOrDefault();
 			if (textToDelete != null)
 			{
 				_db.TextBlocks.Remove(textToDelete);

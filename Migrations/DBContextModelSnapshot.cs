@@ -56,11 +56,11 @@ namespace MyApp.Migrations
                         new
                         {
                             AdminId = 1,
-                            CreatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 545, DateTimeKind.Utc).AddTicks(3223),
+                            CreatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 45, DateTimeKind.Utc).AddTicks(6934),
                             Email = "bugs@acme.com",
                             Name = "Bugs Bunny",
-                            Password = "AQAAAAIAAYagAAAAEJqmP+ASBP3Xf2XpqjxmA7A84+6XBbvmQ44LVjo3wySkWvYoHIFqxlV5FpPZd3surQ==",
-                            UpdatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 545, DateTimeKind.Utc).AddTicks(3226)
+                            Password = "AQAAAAIAAYagAAAAEPiedwWJ7PQMioRAL2K8PZA8Ap1/+YlQO3Zd+Plf5HcVqCjNWAThxIBnDARuYE94/w==",
+                            UpdatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 45, DateTimeKind.Utc).AddTicks(6936)
                         });
                 });
 
@@ -130,46 +130,46 @@ namespace MyApp.Migrations
                         {
                             BlogId = 1,
                             AdminId = 1,
-                            CreatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3807),
+                            CreatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(369),
                             Released = false,
                             Title = "The Eagles' Role in Middle-earth: Why the Ring Couldn't Be Taken to Mordor",
-                            UpdatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3811)
+                            UpdatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(373)
                         },
                         new
                         {
                             BlogId = 2,
                             AdminId = 1,
-                            CreatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3815),
+                            CreatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(377),
                             Released = false,
                             Title = "The Hobbits Are Eating",
-                            UpdatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3815)
+                            UpdatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(377)
                         },
                         new
                         {
                             BlogId = 3,
                             AdminId = 1,
-                            CreatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3817),
+                            CreatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(379),
                             Released = false,
                             Title = "Gandalf does Gandalf Things",
-                            UpdatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3818)
+                            UpdatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(379)
                         },
                         new
                         {
                             BlogId = 4,
                             AdminId = 1,
-                            CreatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3819),
+                            CreatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(380),
                             Released = false,
                             Title = "Some other blog",
-                            UpdatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3819)
+                            UpdatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(381)
                         },
                         new
                         {
                             BlogId = 5,
                             AdminId = 1,
-                            CreatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3820),
+                            CreatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(382),
                             Released = false,
                             Title = "Bloggy bloggy blog",
-                            UpdatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3820)
+                            UpdatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(382)
                         });
                 });
 
@@ -211,9 +211,9 @@ namespace MyApp.Migrations
                         {
                             ImageId = 1,
                             BlogId = 1,
-                            CreatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3865),
+                            CreatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(503),
                             DisplayOrder = 10,
-                            UpdatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3865),
+                            UpdatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(504),
                             Url = "https://www.eagles.org/wp-content/uploads/2020/07/MG_7021-176-scaled.jpg"
                         });
                 });
@@ -258,60 +258,60 @@ namespace MyApp.Migrations
                             TextBlockId = 1,
                             BlogId = 1,
                             Content = "Introduction",
-                            CreatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3892),
+                            CreatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(529),
                             DisplayOrder = 20,
                             TextType = "header",
-                            UpdatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3892)
+                            UpdatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(529)
                         },
                         new
                         {
                             TextBlockId = 2,
                             BlogId = 1,
                             Content = "In J.R.R. Tolkien's epic fantasy masterpiece, \"The Lord of the Rings,\" the journey to destroy the One Ring and defeat the Dark Lord Sauron is a perilous undertaking. Throughout the story, readers often wonder why the characters didn't simply enlist the aid of the mighty eagles to transport the Ring to Mount Doom and bypass many of the dangers. In this blog post, we will explore the reasons why the eagles couldn't be the straightforward solution to the quest and delve into the deeper implications of their role in Middle-earth.",
-                            CreatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3896),
+                            CreatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(532),
                             DisplayOrder = 30,
                             TextType = "paragraph",
-                            UpdatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3896)
+                            UpdatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(533)
                         },
                         new
                         {
                             TextBlockId = 3,
                             BlogId = 1,
                             Content = "The Eagles' Nature and Loyalties:",
-                            CreatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3897),
+                            CreatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(534),
                             DisplayOrder = 40,
                             TextType = "header",
-                            UpdatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3898)
+                            UpdatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(534)
                         },
                         new
                         {
                             TextBlockId = 4,
                             BlogId = 1,
                             Content = "The eagles, led by Gwaihir and their lord Thorondor, are noble creatures with their own motivations and allegiances. They are not mere transportation devices but highly intelligent beings with their own concerns and priorities. Their primary role is to serve as messengers and scouts rather than a means of transportation for the characters' convenience.",
-                            CreatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3899),
-                            DisplayOrder = 60,
+                            CreatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(535),
+                            DisplayOrder = 50,
                             TextType = "paragraph",
-                            UpdatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3899)
+                            UpdatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(535)
                         },
                         new
                         {
                             TextBlockId = 5,
                             BlogId = 1,
                             Content = "The Corruption of the Ring:",
-                            CreatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3900),
-                            DisplayOrder = 70,
+                            CreatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(536),
+                            DisplayOrder = 60,
                             TextType = "header",
-                            UpdatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3900)
+                            UpdatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(536)
                         },
                         new
                         {
                             TextBlockId = 6,
                             BlogId = 1,
                             Content = "The One Ring possesses immense power and an inherent corrupting influence. Anyone who bears the Ring is susceptible to its allure and can become corrupted by its malevolent forces. While the eagles are mighty and noble, they too would be vulnerable to the Ring's seduction and potentially fall under its control. The risk of the Ring exerting its power over the eagles could lead to disastrous consequences for Middle-earth.",
-                            CreatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3901),
+                            CreatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(537),
                             DisplayOrder = 70,
                             TextType = "paragraph",
-                            UpdatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(3901)
+                            UpdatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(537)
                         });
                 });
 
@@ -350,10 +350,10 @@ namespace MyApp.Migrations
                         {
                             TweetId = 1,
                             BlogId = 1,
-                            CreatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(4020),
+                            CreatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(556),
                             DisplayOrder = 50,
                             Signature = "463440424141459456",
-                            UpdatedAt = new DateTime(2023, 6, 30, 5, 52, 41, 612, DateTimeKind.Utc).AddTicks(4020)
+                            UpdatedAt = new DateTime(2023, 6, 30, 23, 52, 10, 113, DateTimeKind.Utc).AddTicks(556)
                         });
                 });
 
