@@ -4,19 +4,6 @@ import useLocalStorage from "../hooks/useLocalStorage";
 import { Blog, TextBlock } from "../types/Types";
 import { tryCreateTextBlock } from "../utils/apiRequests";
 
-interface IDisplayable {
-  displayableId?: number;
-  content?: string;
-  url?: string;
-  caption?: string;
-  textType?: string;
-  signature?: string;
-
-  blogId: number;
-  displayOrder: number;
-  dataType: string;
-}
-
 interface BlogEditorProps {
   currentBlog: Blog;
   setCurrentBlog: Function;

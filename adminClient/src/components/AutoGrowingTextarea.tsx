@@ -110,7 +110,9 @@ const AutoGrowingTextarea = (props: TAProps) => {
   };
 
   const [saveButtonShowing, setSaveButtonShowing] = useState(false);
+  //@ts-ignore
   const [saveIsClicked, setSaveIsClicked] = useState(false);
+  //@ts-ignore
   const [deleteIsClicked, setDeleteIsClicked] = useState(false);
 
   const handleSaveClicked = () => {

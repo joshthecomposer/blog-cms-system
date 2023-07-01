@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Blog, Displayable, TextBlock } from "../types/Types";
+import {Displayable, TextBlock } from "../types/Types";
 
 interface LoginUser {
   email: string;

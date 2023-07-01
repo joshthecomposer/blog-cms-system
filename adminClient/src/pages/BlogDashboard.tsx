@@ -1,6 +1,4 @@
-import { useState, ChangeEvent, useEffect } from "react";
-import { Blog, BlogReq } from "../types/Types";
-import { initializeNewBlog } from "../utils/apiRequests";
+import { Blog } from "../types/Types";
 // import { Link } from "react-router-dom";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +6,7 @@ import NewBlogForm from "../components/NewBlogForm";
 
 const BlogDashboard = () => {
   const navigate = useNavigate();
+  //@ts-ignore
   const [blogs, setBlogs] = useLocalStorage("blogs", []);
   //@ts-ignore
   const [currentBlog, setCurrentBlog] = useLocalStorage("currentBlog", {});
