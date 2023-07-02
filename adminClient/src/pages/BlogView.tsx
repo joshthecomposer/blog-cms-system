@@ -3,7 +3,7 @@ import AutoGrowingTextarea from "../components/AutoGrowingTextarea";
 import BlogEditorTool from "../components/BlogEditorTool";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { useEffect } from "react";
-import { tryUpdateBlog, tryUpdateDraggedDtoOrder } from "../utils/apiRequests";
+import { tryUpdateDraggedDtoOrder } from "../utils/apiRequests";
 
 const BlogView = () => {
   const [currentBlog, setCurrentBlog] = useLocalStorage("currentBlog", {});
