@@ -1,5 +1,5 @@
 import axios from "axios";
-import {Blog, Displayable, TextBlock } from "../types/Types";
+import {Blog, Displayable, RefReq, TextBlock } from "../types/Types";
 
 interface LoginUser {
   email: string;
@@ -31,23 +31,31 @@ export const adminLoginRequest = async (loginUser: LoginUser) => {
     .post("/admin/login", loginUser)
     .then((res) => res.data)
     .catch((err) => {
-      throw err.response.data.errors;
+      throw err.response;
     });
 };
 
-export const initializeNewBlog = async (initBlog: InitBlog) => {
-  const config = {
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("jwt")}`
-  },
-};
-  console.log(config)
+export const tryRefresh = async (refreshRequest : RefReq) => {
   return apiClient
-    .post("/blog", initBlog, config)
+    .post("/admin/tokens/refresh", refreshRequest)
     .then((res) => res.data)
-    .catch((err) => {
-      throw err.response.data.errors;
-    });
+    .catch((err) => { throw err.response; })
+}
+
+export const initializeNewBlog = async (initBlog: InitBlog, jwt:string) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${jwt}`
+    },
+  }
+  try {
+    const res = await apiClient.post("/blog", initBlog, config)
+    console.log(res.data);
+    return res.data;
+  } catch (err) {
+    console.log(err)
+    throw err;
+  }
 };
 
 export const tryCreateTextBlock = async (textBlock: TextBlock) => {
@@ -74,7 +82,7 @@ export const deleteTextBlock = async (textBlock: Displayable) => {
     .delete(`/content/text`, {...config, data: textBlock})
     .then((res) => res.data)
     .catch((err) => {
-      throw err.response.data.errors;
+      throw err.response;
     });
 };
 
@@ -88,7 +96,7 @@ export const tryUpdateTextBlock = async (textBlock: Displayable) => {
     .put(`/content/text`, textBlock, config)
     .then((res) => res.data)
     .catch((err) => {
-      throw err.response.status;
+      throw err.response;
     })
 }
 
@@ -101,17 +109,17 @@ export const tryUpdateBlog = async (blog: Blog) => {
   return apiClient
     .put(`/blog`, blog, config)
     .then((res) => res.data)
-    .catch((err) => {throw err.response.status})
+    .catch((err) => {throw err.response})
 }
 
-export const tryUpdateDraggedDtoOrder = async (displayable: Displayable) => {
+export const tryUpdateDraggedDtoOrder = async (displayable: Displayable, jwt:string) => {
   const config = {
     headers: {
-      Authorization: `Bearer ${localStorage.getItem("jwt")}`
+      Authorization: `Bearer ${jwt}`
     },
   };
   return apiClient
     .put(`/content/reorder`, displayable, config)
     .then((res) => res.data)
-    .catch((err)=>{throw err.response.status})
+    .catch((err)=>{throw err.response})
 }

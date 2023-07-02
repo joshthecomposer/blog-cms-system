@@ -50,3 +50,8 @@ export type BlogReq = {
   adminId: number;
   title: string;
 }
+
+export type RefReq = {
+  accessToken: string;
+  refreshToken: string;
+}

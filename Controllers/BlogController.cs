@@ -15,73 +15,186 @@ namespace MyApp.Controllers;
 public class BlogController : Controller
 {
 	private readonly DBContext _db;
+	private readonly IConfiguration _config;
 
-	public BlogController(DBContext context)
+	public BlogController(DBContext context, IConfiguration config)
 	{
+		_config = config;
 		_db = context;
 	}
 
 	[HttpPost]
 	public async Task<ActionResult<Blog>> InitializeBlog(Blog newBlog)
 	{
-		if (ModelState.IsValid)
+		try
 		{
-			int claim = AdminController.GetClaimFromToken(AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]));
-			if (claim == -1)
+			var headerValue = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
+			if (ModelState.IsValid)
 			{
-				return Unauthorized();
-			}
-			await _db.Blogs.AddAsync(newBlog);
-			await _db.SaveChangesAsync();
+				var token = headerValue?.Parameter;
+				if (string.IsNullOrEmpty(token))
+				{
+					return Unauthorized("Token was null or empty");
+				}
+				var principal = AdminController.GetPrincipalFromExpiredToken(token, _config["AppSecrets:JWTSecret"]!);
+				if (principal?.Identity?.Name == null)
+				{
+					return Unauthorized("Principal was null or name was null");
+				}
+				if (!int.TryParse(principal.Identity.Name, out int id))
+				{
+					return BadRequest("Identity name was not a valid integer");
+				}
+				newBlog.AdminId = id;
+				await _db.Blogs.AddAsync(newBlog);
+				await _db.SaveChangesAsync();
 
-			return CreatedAtAction(nameof(GetOne), new { blogId = newBlog.BlogId }, new BlogWithOrderedContentDto(newBlog));
+				return CreatedAtAction(nameof(GetOne), new { blogId = newBlog.BlogId }, new BlogWithOrderedContentDto(newBlog));
+			}
+			return BadRequest("Model was not valid.");
 		}
-		return BadRequest("Something went wrong.");
+		catch (FormatException)
+		{
+			return BadRequest("Authorization header format was invalid");
+		}
+		catch (Exception e)
+		{
+			// Ideally, log the exception here.
+			return BadRequest("Something went wrong: " + e.Message);
+		}
 	}
 
 	[HttpGet("{blogId}")]
 	public async Task<ActionResult<Blog>> GetOne(int blogId)
 	{
-		var blog = await _db.Blogs.FindAsync(blogId);
-		if (blog == null)
+		try
 		{
-			return BadRequest("Resource not found.");
+			var headerValue = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
+			var token = headerValue?.Parameter;
+			if (string.IsNullOrEmpty(token))
+			{
+				return Unauthorized("Token was null or empty");
+			}
+			var principal = AdminController.GetPrincipalFromExpiredToken(token, _config["AppSecrets:JWTSecret"]!);
+			if (principal?.Identity?.Name == null)
+			{
+				return Unauthorized("Principal was null or name was null");
+			}
+			if (principal?.Identity?.Name == null)
+			{
+				return Unauthorized("Principal was null or name was null");
+			}
+			if (!int.TryParse(principal.Identity.Name, out int id))
+			{
+				return BadRequest("Identity name was not a valid integer");
+			}
+			var blog = await _db.Blogs.FindAsync(blogId);
+			if (blog == null)
+			{
+				return BadRequest("Resource not found.");
+			}
+			if (id != blog.AdminId)
+			{
+				return Unauthorized("provided adminId has no claim to this blog");
+			}
+			return blog;
 		}
-		int claim = AdminController.GetClaimFromToken(AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]));
-		if (claim != blog.AdminId)
+		catch (FormatException)
 		{
-			return Unauthorized();
+			return BadRequest("Authorization header format was invalid");
 		}
-		return blog;
+		catch (Exception e)
+		{
+			return BadRequest("Something went wrong " + e.Message);
+		}
 	}
 
 	[HttpDelete("{blogId}")]
 	public async Task<ActionResult<Blog>> DeleteById(int blogId)
 	{
 		var blog = await _db.Blogs.FindAsync(blogId);
-		int claim = AdminController.GetClaimFromToken(AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]));
-		if (blog != null && claim == blog.AdminId)
+		try
 		{
-			var deleted = _db.Blogs.Remove(blog);
-			await _db.SaveChangesAsync();
-			return Ok(blog);
+			var headerValue = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
+			var token = headerValue?.Parameter;
+			if (string.IsNullOrEmpty(token))
+			{
+				return Unauthorized("Token was null or empty");
+			}
+			var principal = AdminController.GetPrincipalFromExpiredToken(token, _config["AppSecrets:JWTSecret"]!);
+			if (principal?.Identity?.Name == null)
+			{
+				return Unauthorized("Principal was null or name was null");
+			}
+			if (principal?.Identity?.Name == null)
+			{
+				return Unauthorized("Principal was null or name was null");
+			}
+			if (!int.TryParse(principal.Identity.Name, out int id))
+			{
+				return BadRequest("Identity name was not a valid integer");
+			}
+			if (blog != null && id == blog.AdminId)
+			{
+				var deleted = _db.Blogs.Remove(blog);
+				await _db.SaveChangesAsync();
+				return Ok(blog);
+			}
+			return BadRequest("Resource not found");
 		}
-		return BadRequest("Resource not found");
+		catch (FormatException)
+		{
+			return BadRequest("Authorization header format was invalid");
+		}
+		catch (Exception e)
+		{
+			return BadRequest("Something went wrong " + e.Message);
+		}
 	}
 
 	[HttpGet("media/text")]
 	public async Task<ActionResult<List<BlogWithOrderedContentDto>>> GetAllBlogsWithContentByAdminId()
 	{
-		int claim = AdminController.GetClaimFromToken(AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]));
-		var blogs = await _db.Blogs
-			.Where(b => b.AdminId == claim)
-			.Include(b => b.Images)
-			.Include(b => b.TextBlocks)
-			.Include(b => b.Tweets)
-			.ToListAsync();
+		try
+		{
+			var headerValue = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
+			var token = headerValue?.Parameter;
+			if (string.IsNullOrEmpty(token))
+			{
+				return Unauthorized("Token was null or empty");
+			}
+			var principal = AdminController.GetPrincipalFromExpiredToken(token, _config["AppSecrets:JWTSecret"]!);
+			if (principal?.Identity?.Name == null)
+			{
+				return Unauthorized("Principal was null or name was null");
+			}
+			if (principal?.Identity?.Name == null)
+			{
+				return Unauthorized("Principal was null or name was null");
+			}
+			if (!int.TryParse(principal.Identity.Name, out int id))
+			{
+				return BadRequest("Identity name was not a valid integer");
+			}
+			var blogs = await _db.Blogs
+				.Where(b => b.AdminId == id)
+				.Include(b => b.Images)
+				.Include(b => b.TextBlocks)
+				.Include(b => b.Tweets)
+				.ToListAsync();
 
-		var processedBlogs = blogs.Select(b => new BlogWithOrderedContentDto(b)).ToList();
+			var processedBlogs = blogs.Select(b => new BlogWithOrderedContentDto(b)).ToList();
 
-		return processedBlogs;
+			return processedBlogs;
+		}
+		catch (FormatException)
+		{
+			return BadRequest("Authorization header format was invalid");
+		}
+		catch (Exception e)
+		{
+			return BadRequest("Something went wrong " + e.Message);
+		}
 	}
+
 }

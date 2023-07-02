@@ -3,11 +3,12 @@ import AutoGrowingTextarea from "../components/AutoGrowingTextarea";
 import BlogEditorTool from "../components/BlogEditorTool";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { useEffect } from "react";
-import { tryUpdateDraggedDtoOrder } from "../utils/apiRequests";
+import { tryRefresh, tryUpdateDraggedDtoOrder } from "../utils/apiRequests";
 
 const BlogView = () => {
   const [currentBlog, setCurrentBlog] = useLocalStorage("currentBlog", {});
-  useEffect(() => {}, [currentBlog]);
+  useEffect(() => { }, [currentBlog]);
+  const [credentials, setCredentials] = useLocalStorage("credentials", {});
 
   const onDragOver = (event: any) => {
     event.preventDefault();
@@ -18,6 +19,7 @@ const BlogView = () => {
   };
 
   const onDrop = async (event: any, index: any) => {
+    let prevBlog = JSON.parse(JSON.stringify(currentBlog));
     let draggedFromIndex = event.dataTransfer.getData("itemIndex");
     let tempList = [...currentBlog.displayables];
     let draggedItem = tempList[draggedFromIndex];
@@ -30,10 +32,24 @@ const BlogView = () => {
       draggedItem.displayOrder = tempList[index - 1].displayOrder + 1;
     }
     try {
-      const response = await tryUpdateDraggedDtoOrder(draggedItem);
+      const response = await tryUpdateDraggedDtoOrder(draggedItem, credentials.jwt);
       setCurrentBlog({ ...response });
     } catch (error) {
-      console.log(error);
+      try {
+        const response = await tryRefresh({ accessToken: credentials.jwt, refreshToken: credentials.rft })
+        const newCredentials = {...credentials, jwt:response.accessToken, rft:response.refreshToken};
+        try {
+          const response = await tryUpdateDraggedDtoOrder(draggedItem, newCredentials.jwt)
+          setCurrentBlog({ ...response });
+          setCredentials({...newCredentials});
+        } catch (err) {
+          console.log(err)
+          setCurrentBlog({...prevBlog})
+          console.log(error);
+        }
+      } catch (error) {
+        console.log("ERROR REFRESHING")
+      }
     }
   };
 

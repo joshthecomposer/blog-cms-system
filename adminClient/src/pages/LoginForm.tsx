@@ -2,7 +2,6 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { adminLoginRequest } from "../utils/apiRequests";
-import { handleLogin } from "../utils/adminStorage";
 import useLocalStorage from "../hooks/useLocalStorage";
 // interface LoginFormProps {
 //   error: string
@@ -23,6 +22,8 @@ const LoginForm = () => {
   const { setIsLoggedIn } = useAuth();
   //@ts-ignore
   const [blogs, setBlogs] = useLocalStorage("blogs", []);
+  //@ts-ignore
+  const [credentials, setCredentials] = useLocalStorage("credentials", {});
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setLoginUser({ ...loginUser, [e.target.name]: e.target.value });
@@ -32,16 +33,21 @@ const LoginForm = () => {
     e.preventDefault();
     try {
       const res: any = await adminLoginRequest(loginUser);
-      handleLogin(res);
+      setCredentials({
+        jwt: res.accessToken,
+        rft: res.refreshToken,
+        adminId: res.adminId,
+        name: res.name,
+        email: res.email
+      })
       setBlogs(res.blogs);
       setIsLoggedIn(true);
-
       navigate("/admin/blog/dashboard");
     } catch (err: any) {
       console.log(err);
       setErrors({
-        email: err.Email,
-        password: err.Password,
+        email: err.data.errors.Email,
+        password: err.data.errors.Password,
       });
     }
   };

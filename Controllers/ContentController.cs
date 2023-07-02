@@ -19,35 +19,66 @@ public class ContentController : ControllerBase
 
 	// Create JsonSerializerOptions with ReferenceHandler.Preserve
 	private readonly DBContext _db;
-
-	public ContentController(DBContext context)
+	private readonly IConfiguration _config;
+	public ContentController(DBContext context, IConfiguration config)
 	{
+		_config = config;
 		_db = context;
 	}
 
 	[HttpPost("text")]
 	public async Task<ActionResult<BlogWithOrderedContentDto>> CreateTextBlock([FromBody] TextBlock newText)
 	{
-		if (ModelState.IsValid)
+		try
 		{
-			int claim = AdminController.GetClaimFromToken(AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]));
-
-			bool check = await _db.Blogs.Where(b => b.AdminId == claim).AnyAsync();
-			if (check == false) { return BadRequest(); };
-
-			newText.DisplayOrder = await GetNewOrderForDb(newText.DisplayOrder, newText.BlogId);
-
-			await _db.TextBlocks.AddAsync(newText);
-			await _db.SaveChangesAsync();
-
-			var blog = await _db.Blogs.Where(b => b.BlogId == newText.BlogId && b.AdminId == claim).FirstOrDefaultAsync();
-			if (blog != null)
+			if (ModelState.IsValid)
 			{
-				return new BlogWithOrderedContentDto(blog);
+				var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
 
+				var token = authHeader.Parameter;
+
+				if(string.IsNullOrEmpty(token))
+				{
+					return BadRequest("Token was null or empty");
+				}
+				var principal = AdminController.GetPrincipalFromExpiredToken(token, _config["AppSecrets:JWTSecret"]!);
+				if (principal?.Identity?.Name == null)
+				{
+					return Unauthorized("Principal was null or name was null");
+				}
+				if (!int.TryParse(principal.Identity.Name, out int id))
+				{
+					return BadRequest("Identity name was not a valid integer.");
+				}
+
+				bool check = await _db.Blogs.Where(b => b.AdminId == id).AnyAsync();
+
+				if (check == false) { return Unauthorized("No blogs matched this adminId"); };
+
+				newText.DisplayOrder = await GetNewOrderForDb(newText.DisplayOrder, newText.BlogId);
+
+				await _db.TextBlocks.AddAsync(newText);
+				await _db.SaveChangesAsync();
+
+				var blog = await _db.Blogs.Where(b => b.BlogId == newText.BlogId && b.AdminId == id).FirstOrDefaultAsync();
+				if (blog != null)
+				{
+					return new BlogWithOrderedContentDto(blog);
+				}
 			}
+			return BadRequest("Model was not valid.");
 		}
-		return BadRequest(ModelState);
+		catch (FormatException)
+		{
+			return BadRequest("Authorization header format was invalid");
+		}
+		catch (Exception e)
+		{
+
+			return BadRequest(e.Message);
+
+		}
+
 	}
 
 	public async Task<int> GetNewOrderForDb(int input, int blogId)
@@ -228,33 +259,58 @@ public class ContentController : ControllerBase
 	{
 		if (ModelState.IsValid)
 		{
-			int claim = AdminController.GetClaimFromToken(AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]));
-			bool check = await _db.Blogs.Where(b => b.BlogId == input.BlogId && b.AdminId == claim).AnyAsync();
-			if (!check) { return Unauthorized(); }
-			switch (input.DataType)
+			try
 			{
-				case "TextBlock":
-					var oldTB = await _db.TextBlocks.Where(t => t.TextBlockId == input.DisplayableId).FirstOrDefaultAsync();
-					if (oldTB == null) { return NotFound(); }
-					oldTB.DisplayOrder = await GetNewOrderForDb(input.DisplayOrder, input.BlogId);
-					break;
-				case "Image":
-					var oldI = await _db.Images.Where(t => t.ImageId == input.DisplayableId).FirstOrDefaultAsync();
-					if (oldI == null) { return NotFound(); }
-					oldI.DisplayOrder = await GetNewOrderForDb(input.DisplayOrder, input.BlogId);
-					break;
+				var headerValue = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
+				var token = headerValue?.Parameter;
+				if (string.IsNullOrEmpty(token))
+				{
+					return Unauthorized("Token was null or empty");
+				}
+				var principal = AdminController.GetPrincipalFromExpiredToken(token, _config["AppSecrets:JWTSecret"]!);
+				if (principal?.Identity?.Name == null)
+				{
+					return Unauthorized("Principal was null or name was null");
+				}
+				if (!int.TryParse(principal.Identity.Name, out int id))
+				{
+					return BadRequest("Identity name was not a valid integer");
+				}
+				bool check = await _db.Blogs.Where(b => b.BlogId == input.BlogId && b.AdminId == id).AnyAsync();
+				if (!check) { return Unauthorized("Requested Resource was not found or did not match claim ID"); }
+				switch (input.DataType)
+				{
+					case "TextBlock":
+						var oldTB = await _db.TextBlocks.Where(t => t.TextBlockId == input.DisplayableId).FirstOrDefaultAsync();
+						if (oldTB == null) { return NotFound(); }
+						oldTB.DisplayOrder = await GetNewOrderForDb(input.DisplayOrder, input.BlogId);
+						break;
+					case "Image":
+						var oldI = await _db.Images.Where(t => t.ImageId == input.DisplayableId).FirstOrDefaultAsync();
+						if (oldI == null) { return NotFound(); }
+						oldI.DisplayOrder = await GetNewOrderForDb(input.DisplayOrder, input.BlogId);
+						break;
+				}
+				await _db.SaveChangesAsync();
+				var blog = await _db.Blogs.Where(b => b.BlogId == input.BlogId)
+					.Include(b => b.TextBlocks)
+					.Include(b => b.Images)
+					.FirstOrDefaultAsync();
+				if (blog == null)
+				{
+					return NotFound();
+				}
+				return new BlogWithOrderedContentDto(blog);
 			}
-			await _db.SaveChangesAsync();
-			var blog = await _db.Blogs.Where(b => b.BlogId == input.BlogId)
-				.Include(b => b.TextBlocks)
-				.Include(b => b.Images)
-				.FirstOrDefaultAsync();
-			if (blog == null)
+			catch (FormatException)
 			{
-				return NotFound();
+				return BadRequest("Authorization header format was invalid");
 			}
-			return new BlogWithOrderedContentDto(blog);
+			catch (Exception e)
+			{
+				return BadRequest("Something went wrong " + e.Message);
+			}
 		}
-		return BadRequest();
+		return BadRequest("Modelstate was invalid");
 	}
 }

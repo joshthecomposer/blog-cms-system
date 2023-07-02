@@ -1,25 +1,51 @@
 import useLocalStorage from "../hooks/useLocalStorage";
-import { initializeNewBlog } from "../utils/apiRequests";
+import { initializeNewBlog, tryRefresh } from "../utils/apiRequests";
 import { BlogReq, Blog } from "../types/Types";
 import { useState , ChangeEvent, useEffect} from 'react'
 
 
 const NewBlogForm = () => {
   const [blogs, setBlogs] = useLocalStorage("blogs", [])
+  const [credentials, setCredentials] = useLocalStorage("credentials", {});
   const [newBlog, setNewBlog] = useState<BlogReq>({
     adminId: 0,
     title: "",
   });
 
-
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     try {
-      const res: any = await initializeNewBlog(newBlog);
+      console.log(credentials.jwt)
+      const res = await initializeNewBlog(newBlog, credentials.jwt);
+      console.log(res)
       const updatedBlogs = [...blogs, res];
       setBlogs(updatedBlogs);
-      setNewBlog({ ...newBlog, title: "" });
-    } catch (err: any) {}
+      const resetNew = { ...newBlog, title: "" }
+      setNewBlog(resetNew);
+    } catch (err : any) {
+      if (err.response != null && err.response.status == 401) {
+        try {
+          console.log("attempting refresh..")
+          const res = await tryRefresh({ accessToken: credentials.jwt, refreshToken: credentials.rft});
+          console.log(res);
+          const newCredentials = { ...credentials, jwt: res.accessToken, rft: res.refreshToken }
+          try {
+            const res = await initializeNewBlog(newBlog, newCredentials.jwt);
+            const updatedBlogs = [...blogs, res];
+            setBlogs(updatedBlogs);
+            const resetNew = { ...newBlog, title: "" };
+            setNewBlog({...resetNew});
+            setCredentials({...newCredentials});
+          } catch (err) {
+            console.log(`Error after refresh request: ${err}`);
+          }
+
+        } catch (err) {
+          console.log(`Error after refresh request: ${err}`)
+        }
+      }
+      console.log(err);
+    }
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -34,7 +60,8 @@ const NewBlogForm = () => {
     let sortedBlogs: Blog[] = blogs.sort((a: Blog, b: Blog) =>
     a.blogId > b.blogId ? 1 : b.blogId > a.blogId ? -1 : 0
   );
-  setBlogs(sortedBlogs);
+    setBlogs(sortedBlogs);
+    console.log(newBlog);
   }, [])
 
   return (

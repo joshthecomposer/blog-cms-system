@@ -183,24 +183,20 @@ public class AdminController : ControllerBase
         return rt;
     }
 
-    [HttpPost("tokens/refresh/{adminId}")]
-    public async Task<ActionResult<RefreshRequest>> DoRefreshToken([FromBody] RefreshRequest refreshRequest, int adminId)
+    [HttpPost("tokens/refresh")]
+    public async Task<ActionResult<RefreshRequest>> DoRefreshToken([FromBody] RefreshRequest refreshRequest)
     {
         if (ModelState.IsValid)
         {
             string accessToken = refreshRequest.AccessToken;
             string refreshToken = refreshRequest.RefreshToken;
-            bool claimIsValid = VerifyClaim(refreshRequest.AccessToken, adminId);
-            if (!claimIsValid)
-            {
-                return BadRequest("Claim to this token was invalid.");
-            }
-            var principal = GetPrincipalFromExpiredToken(accessToken);
+
+            var principal = GetPrincipalFromExpiredToken(accessToken, _config["AppSecrets:JWTSecret"]!);
             if (principal == null)
             {
                 return BadRequest("Invalid access token or refresh token");
             }
-            int id = Int32.Parse(principal!.Identity!.Name!);
+			int id = Int32.Parse(principal.Identity!.Name!);
             var admin = await db.Admins.Where(u => u.AdminId == id).FirstOrDefaultAsync();
 
             if (admin == null)
@@ -214,28 +210,36 @@ public class AdminController : ControllerBase
             if (refreshTokenAdmin != null && refreshTokenAdmin.AdminId == admin.AdminId && refreshTokenAdmin.ExpiryDate > DateTime.UtcNow)
             {
                 var newToken = GenerateAccessToken(admin.AdminId);
-                RefreshRequest result = new(newToken, refreshRequest.RefreshToken);
+				var newRefreshToken = GenerateRefreshToken(id);
+				var rfsToDelete = await db.RefreshTokens.Where(r=>r.AdminId == id).ToListAsync();
+				db.RemoveRange(rfsToDelete);
+				await db.RefreshTokens.AddAsync(newRefreshToken);
+				await db.SaveChangesAsync();
+				RefreshRequest result = new(newToken, newRefreshToken.Value);
                 return result;
             }
         }
         return BadRequest("Invalid refresh request.");
     }
 
-    private ClaimsPrincipal? GetPrincipalFromExpiredToken(string? token)
+    public static ClaimsPrincipal? GetPrincipalFromExpiredToken(string? token, string jwtSecret)
     {
-        var tokenValidationParameters = new TokenValidationParameters
+
+		var tokenValidationParameters = new TokenValidationParameters
         {
             ValidateAudience = false,
             ValidateIssuer = false,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWTSettings:SecretKey"]!)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
             ValidateLifetime = false
         };
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
         if (securityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+		{
             throw new SecurityTokenException("Invalid token");
+		}
 
         return principal;
     }
@@ -256,17 +260,17 @@ public class AdminController : ControllerBase
         Claim? verifiedClaim = handler.ReadJwtToken(credentials).Claims.Where(c => c.Value == id.ToString()).FirstOrDefault();
         return verifiedClaim == null ? false : true;
     }
-	public static int GetClaimFromToken(AuthenticationHeaderValue input)
-	{
-		JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
-		string? credentials = input.Parameter;
-		if (credentials==null || credentials==string.Empty){ return -1; }
-		var verifiedClaim = handler.ReadJwtToken(credentials).Claims
-			.Select(c => c.Value).FirstOrDefault();
-		if (verifiedClaim == null || credentials==string.Empty) { return -1; };
+	// public static int GetClaimFromToken(AuthenticationHeaderValue input)
+	// {
+	// 	JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+	// 	string? credentials = input.Parameter;
+	// 	if (credentials==null || credentials==string.Empty){ return -1; }
+	// 	var verifiedClaim = handler.ReadJwtToken(credentials).Claims
+	// 		.Select(c => c.Value).FirstOrDefault();
+	// 	if (verifiedClaim == null || credentials==string.Empty) { return -1; };
 
-		return Int32.Parse(verifiedClaim);
-	}
+	// 	return Int32.Parse(verifiedClaim);
+	// }
 
     //==================================================
 }
