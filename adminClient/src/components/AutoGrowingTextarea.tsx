@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Blog } from "../types/Types";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { Displayable } from "../types/Types";
-import { deleteTextBlock, tryUpdateBlog } from "../utils/apiRequests";
+import { deleteTextBlock, tryUpdateTextBlock } from "../utils/apiRequests";
 
 interface TAProps {
   displayable: Displayable;
@@ -56,7 +56,6 @@ const AutoGrowingTextarea = (props: TAProps) => {
           d.displayableId === displayable.displayableId &&
           d.dataType == "TextBlock"
       );
-      console.log(disps, otherMedia, one)
       if (one) {
         one.content = text;
         let concatted = [...disps, one, ...otherMedia].sort((a: Displayable, b: Displayable) =>
@@ -90,7 +89,7 @@ const AutoGrowingTextarea = (props: TAProps) => {
   const updateBlog = async () => {
     try {
       const incoming = displayable;
-      const response = await tryUpdateBlog(incoming);
+      const response = await tryUpdateTextBlock(incoming);
       const updated = response;
       setCurrentBlog(updated);
       const newText = updated.displayables.find(
@@ -98,7 +97,6 @@ const AutoGrowingTextarea = (props: TAProps) => {
           c.dataType === incoming.dataType &&
           c.displayableId === incoming.displayableId
       ).content;
-      console.log(newText);
       //@ts-ignore
       setText(newText);
       const filteredBlogs = [

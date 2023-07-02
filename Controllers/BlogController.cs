@@ -9,7 +9,7 @@ using MyApp.Data;
 using MyApp.DTOs;
 
 namespace MyApp.Controllers;
-[Authorize]
+// [Authorize]
 [ApiController]
 [Route("api/blog")]
 public class BlogController : Controller

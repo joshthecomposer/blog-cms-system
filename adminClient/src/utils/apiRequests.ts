@@ -1,5 +1,5 @@
 import axios from "axios";
-import {Displayable, TextBlock } from "../types/Types";
+import {Blog, Displayable, TextBlock } from "../types/Types";
 
 interface LoginUser {
   email: string;
@@ -69,11 +69,27 @@ export const deleteTextBlock = async (textBlock: Displayable) => {
     });
 };
 
-export const tryUpdateBlog = async (textBlock:Displayable) => {
+export const tryUpdateTextBlock = async (textBlock:Displayable) => {
   return apiClient
     .put(`/content/text`, textBlock)
     .then((res) => res.data)
     .catch((err) => {
       throw err.response.status;
     })
+}
+
+export const tryUpdateBlog = async (blog: Blog) => {
+  return apiClient
+    .put(`/blog`, blog)
+    .then((res) => res.data)
+    .catch((err) => {throw err.response.status})
+}
+
+export const tryUpdateDraggedDtoOrder = async (displayable: Displayable) => {
+
+  console.log(displayable, "is the displayable to be reordered.")
+  return apiClient
+    .put(`/content/reorder`, displayable)
+    .then((res) => res.data)
+    .catch((err)=>{throw err.response.status})
 }

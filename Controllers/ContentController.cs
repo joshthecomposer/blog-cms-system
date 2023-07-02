@@ -55,11 +55,11 @@ public class ContentController : ControllerBase
 				.ToListAsync();
 
 		List<IDisplayable> displayables = textBlocks.Concat(media).OrderBy(d => d.DisplayOrder).ToList();
+		int maxDisplayOrder = displayables.Select(d => d.DisplayOrder).DefaultIfEmpty(0).Max();
 
-		int maxDisplayOrder = displayables.Select(d => d.DisplayOrder).DefaultIfEmpty(0).Max(); ;
-
+		Console.WriteLine(JsonSerializer.Serialize(displayables));
 		int original = input;
-		int nextValueAboveInput = 20;
+		int nextValueAboveInput = 0;
 		int cursorPosition = 1;
 
 		if (!displayables.Any()) { return 10; }
@@ -86,6 +86,7 @@ public class ContentController : ControllerBase
 				displayables[i].DisplayOrder += 10;
 			}
 		}
+		Console.WriteLine(displayables);
 
 		await _db.SaveChangesAsync();
 		return input;
@@ -211,5 +212,37 @@ public class ContentController : ControllerBase
 
 		}
 		return BadRequest("TextBlock not found");
+	}
+
+	[HttpPut("reorder")]
+	public async Task<ActionResult<BlogWithOrderedContentDto>> ReorderBlogContent(DisplayableDto input)
+	{
+		if (ModelState.IsValid)
+		{
+			switch(input.DataType)
+			{
+				case "TextBlock":
+					var oldTB = await _db.TextBlocks.Where(t => t.TextBlockId == input.DisplayableId).FirstOrDefaultAsync();
+					if (oldTB == null){return NotFound();}
+			 		oldTB.DisplayOrder = await GetNewOrderForDb(input.DisplayOrder, input.BlogId);
+					break;
+				case "Image":
+					var oldI = await _db.Images.Where(t => t.ImageId == input.DisplayableId).FirstOrDefaultAsync();
+					if (oldI == null){return NotFound();}
+			 		oldI.DisplayOrder = await GetNewOrderForDb(input.DisplayOrder, input.BlogId);
+					break;
+			}
+			await _db.SaveChangesAsync();
+			var blog = await _db.Blogs.Where(b => b.BlogId == input.BlogId)
+				.Include(b => b.TextBlocks)
+				.Include(b => b.Images)
+				.FirstOrDefaultAsync();
+			if (blog == null)
+			{
+				return NotFound();
+			}
+			return new BlogWithOrderedContentDto(blog);
+		}
+		return BadRequest();
 	}
 }

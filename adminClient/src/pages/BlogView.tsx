@@ -3,7 +3,7 @@ import AutoGrowingTextarea from "../components/AutoGrowingTextarea";
 import BlogEditorTool from "../components/BlogEditorTool";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { useEffect } from "react";
-// import { useState } from "react";
+import { tryUpdateBlog, tryUpdateDraggedDtoOrder } from "../utils/apiRequests";
 
 const BlogView = () => {
   const [currentBlog, setCurrentBlog] = useLocalStorage("currentBlog", {});
@@ -18,21 +18,24 @@ const BlogView = () => {
     event.dataTransfer.setData("itemIndex", index);
   };
 
-  const onDrop = (event: any, index: any) => {
+  const onDrop = async (event: any, index: any) => {
     let draggedFromIndex = event.dataTransfer.getData("itemIndex");
     let tempList = [...currentBlog.displayables];
     let draggedItem = tempList[draggedFromIndex];
 
-    console.log(draggedFromIndex, "dragging index")
     tempList.splice(draggedFromIndex, 1);
     tempList.splice(index, 0, draggedItem);
-    let order = 0;
-    tempList.forEach((d) => {
-      d.displayOrder = order + 10;
-      order += 10;
-    });
-    console.log(tempList);
-    setCurrentBlog({ ...currentBlog, displayables: [...tempList] });
+    if (index === 0) {
+      draggedItem.displayOrder = 1;
+    } else {
+      draggedItem.displayOrder = tempList[index - 1].displayOrder + 1;
+    }
+    try {
+      const response = await tryUpdateDraggedDtoOrder(draggedItem);
+      setCurrentBlog({ ...response });
+    } catch (error) {
+      console.log(error)
+    }
   };
 
   useEffect(() => {}, [currentBlog]);
@@ -73,16 +76,17 @@ const BlogView = () => {
                   );
                 case "Image":
                   return (
-                    <img
-                      key={`${d.displayableId}-${d.dataType}`}
-                      onDragOver={(event) => onDragOver(event)}
-                      onDragStart={(event) => onDragStart(event, index)}
-                      onDrop={(event) => onDrop(event, index)}
-                      draggable
-                      src={d.url}
-                      className="w-full"
-                      alt=""
-                    />
+                    <div className="w-full">
+                      <img
+                        key={`${d.displayableId}-${d.dataType}`}
+                        onDragOver={(event) => onDragOver(event)}
+                        onDragStart={(event) => onDragStart(event, index)}
+                        onDrop={(event) => onDrop(event, index)}
+                        draggable
+                        src={d.url}
+                        alt=""
+                      />
+                    </div>
                   );
                 default:
                   return null;
