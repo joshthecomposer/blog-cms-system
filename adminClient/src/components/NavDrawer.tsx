@@ -9,6 +9,7 @@ const NavDrawer = () => {
     setIsLoggedIn(false);
     navigate("/admin");
   };
+  //@ts-ignore
   const [credentials, setCredentials] = useLocalStorage("credentials", {})
   return (
     <>
