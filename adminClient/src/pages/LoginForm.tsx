@@ -1,6 +1,5 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
 import { adminLoginRequest } from "../utils/apiRequests";
 import useLocalStorage from "../hooks/useLocalStorage";
 // interface LoginFormProps {
@@ -19,7 +18,6 @@ const LoginForm = () => {
     email: "",
     password: "",
   });
-  const { setIsLoggedIn } = useAuth();
   //@ts-ignore
   const [blogs, setBlogs] = useLocalStorage("blogs", []);
   //@ts-ignore
@@ -41,7 +39,6 @@ const LoginForm = () => {
         email: res.email
       })
       setBlogs(res.blogs);
-      setIsLoggedIn(true);
       navigate("/admin/blog/dashboard");
     } catch (err: any) {
       console.log(err);

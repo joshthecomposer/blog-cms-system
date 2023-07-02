@@ -2,18 +2,19 @@ import { BiX, BiEdit } from "react-icons/bi";
 import { useState, useEffect } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { Blog, TextBlock } from "../types/Types";
-import { tryCreateTextBlock } from "../utils/apiRequests";
+import { tryCreateTextBlock, tryRefresh } from "../utils/apiRequests";
 
 interface BlogEditorProps {
   currentBlog: Blog;
   setCurrentBlog: Function;
 }
 
+
 const BlogEditorTool = (props: BlogEditorProps) => {
   const { currentBlog, setCurrentBlog } = props;
   const [blogs, setBlogs] = useLocalStorage("blogs", []);
   const [editorShowing, setEditorShowing] = useState<boolean>(false);
-
+  const [credentials, setCredentials] = useLocalStorage("credentials", {})
   const addTextBlock = async (contentType: string) => {
     let newDisplayOrder: number = 1;
     if (currentBlog.displayables.length > 0) {
@@ -22,21 +23,46 @@ const BlogEditorTool = (props: BlogEditorProps) => {
           .displayOrder + 1;
     }
     let newText: TextBlock = {
-      content: "...",
+      content: "...", //TODO: make a faker instance that generates a bit of lorem for this instead of ...
       blogId: currentBlog.blogId,
       displayOrder: newDisplayOrder,
       textType: contentType,
     };
 
     try {
-      const res = await tryCreateTextBlock(newText);
-      const blog = res
+      const res = await tryCreateTextBlock(newText, credentials.jwt);
+      const blog = res;
       setCurrentBlog(blog);
-      const filtered = blogs.filter((b : Blog) => b.blogId !== currentBlog.blogId)
-      setBlogs([...filtered, blog])
+      const filtered = blogs.filter(
+        (b: Blog) => b.blogId !== currentBlog.blogId
+      );
+      setBlogs([...filtered, blog]);
     } catch (err) {
-      console.log(err);
-      return;
+      try {
+        const res = await tryRefresh({
+          accessToken: credentials.jwt,
+          refreshToken: credentials.rft,
+        });
+        const newCredentials = {
+          ...credentials,
+          jwt: res.accessToken,
+          rft: res.refreshToken,
+        };
+        try {
+          const res = await tryCreateTextBlock(newText, newCredentials.jwt);
+          const blog = res;
+          setCurrentBlog(blog);
+          const filtered = blogs.filter(
+            (b: Blog) => b.blogId !== currentBlog.blogId
+          );
+          setBlogs([...filtered, blog]);
+          setCredentials({ ...newCredentials });
+        } catch (err) {
+          console.log("refresh successfull but unknown error.");
+        }
+      } catch (err) {
+        console.log("error refreshing...");
+      }
     }
   };
 

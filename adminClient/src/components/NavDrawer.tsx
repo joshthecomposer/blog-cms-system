@@ -1,12 +1,9 @@
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
 import useLocalStorage from "../hooks/useLocalStorage";
 const NavDrawer = () => {
   const navigate = useNavigate();
-  const { isLoggedIn, setIsLoggedIn } = useAuth(); //TODO: see if we can just use useLocalStorage for thsi.
   const handleLogout = () => {
-    localStorage.clear();
-    setIsLoggedIn(false);
+    setCredentials({});
     navigate("/admin");
   };
   //@ts-ignore
@@ -17,7 +14,7 @@ const NavDrawer = () => {
         <h2 className="text-5xl bold">
           TolkienWithFriends<span className="text-sm italic">Admin</span>
         </h2>
-        {isLoggedIn ? (
+        {credentials && Object.keys(credentials).length > 0? (
           <div className="flex justify-between w-full">
             <div className="flex gap-4 underline">
               <a href="/">Public Site</a>

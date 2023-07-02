@@ -58,10 +58,10 @@ export const initializeNewBlog = async (initBlog: InitBlog, jwt:string) => {
   }
 };
 
-export const tryCreateTextBlock = async (textBlock: TextBlock) => {
+export const tryCreateTextBlock = async (textBlock: TextBlock, jwt:string) => {
   const config = {
     headers: {
-      Authorization: `Bearer ${localStorage.getItem("jwt")}`
+      Authorization: `Bearer ${jwt}`
     },
   };
   return apiClient
@@ -86,10 +86,10 @@ export const deleteTextBlock = async (textBlock: Displayable) => {
     });
 };
 
-export const tryUpdateTextBlock = async (textBlock: Displayable) => {
+export const tryUpdateTextBlock = async (textBlock: Displayable, jwt:string) => {
   const config = {
     headers: {
-      Authorization: `Bearer ${localStorage.getItem("jwt")}`
+      Authorization: `Bearer ${jwt}`
     },
   };
   return apiClient

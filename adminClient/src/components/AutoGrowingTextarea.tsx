@@ -2,13 +2,17 @@ import { useState, useEffect, useRef } from "react";
 import { Blog } from "../types/Types";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { Displayable } from "../types/Types";
-import { deleteTextBlock, tryUpdateTextBlock } from "../utils/apiRequests";
+import {
+  deleteTextBlock,
+  tryRefresh,
+  tryUpdateTextBlock,
+} from "../utils/apiRequests";
 
 interface TAProps {
   displayable: Displayable;
   setCurrentBlog: Function;
   currentBlog: Blog;
-  textType: string | undefined
+  textType: string | undefined;
 }
 
 const AutoGrowingTextarea = (props: TAProps) => {
@@ -19,6 +23,7 @@ const AutoGrowingTextarea = (props: TAProps) => {
   const [highlighted, setHighlighted] = useState(false);
 
   const [blogs, setBlogs] = useLocalStorage("blogs", []);
+  const [credentials, setCredentials] = useLocalStorage("credentials", {});
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -44,10 +49,10 @@ const AutoGrowingTextarea = (props: TAProps) => {
       let disps: Displayable[] = currentBlog.displayables.filter(
         (d: Displayable) =>
           d.displayableId !== displayable.displayableId &&
-          d.dataType ==="TextBlock"
+          d.dataType === "TextBlock"
       );
-      let otherMedia: Displayable[] = currentBlog.displayables.filter((d: Displayable) =>
-        d.dataType !== displayable.dataType
+      let otherMedia: Displayable[] = currentBlog.displayables.filter(
+        (d: Displayable) => d.dataType !== displayable.dataType
       );
       let one: Displayable | undefined = currentBlog.displayables.find(
         (d: Displayable) =>
@@ -56,12 +61,13 @@ const AutoGrowingTextarea = (props: TAProps) => {
       );
       if (one) {
         one.content = text;
-        let concatted = [...disps, one, ...otherMedia].sort((a: Displayable, b: Displayable) =>
-          a.displayOrder > b.displayOrder
-            ? 1
-            : b.displayOrder > a.displayOrder
-            ? -1
-            : 0
+        let concatted = [...disps, one, ...otherMedia].sort(
+          (a: Displayable, b: Displayable) =>
+            a.displayOrder > b.displayOrder
+              ? 1
+              : b.displayOrder > a.displayOrder
+              ? -1
+              : 0
         );
         setCurrentBlog({ ...currentBlog, displayables: concatted });
       }
@@ -87,7 +93,7 @@ const AutoGrowingTextarea = (props: TAProps) => {
   const updateBlog = async () => {
     try {
       const incoming = displayable;
-      const response = await tryUpdateTextBlock(incoming);
+      const response = await tryUpdateTextBlock(incoming, credentials.jwt);
       const updated = response;
       setCurrentBlog(updated);
       const newText = updated.displayables.find(
@@ -102,6 +108,39 @@ const AutoGrowingTextarea = (props: TAProps) => {
       ];
       setBlogs([...filteredBlogs, updated]);
     } catch (error) {
+      try {
+        const res = await tryRefresh({
+          accessToken: credentials.jwt,
+          refreshToken: credentials.rft,
+        });
+        const newCredentials = {
+          ...credentials,
+          jwt: res.accessToken,
+          rft: res.refreshToken,
+        };
+        try {
+          const incoming = displayable;
+          const response = await tryUpdateTextBlock(incoming, newCredentials.jwt);
+          const updated = response;
+          setCurrentBlog(updated);
+          const newText = updated.displayables.find(
+            (c: Displayable) =>
+              c.dataType === incoming.dataType &&
+              c.displayableId === incoming.displayableId
+          ).content;
+          //@ts-ignore
+          setText(newText);
+          const filteredBlogs = [
+            ...blogs.filter((b: Blog) => b.blogId !== currentBlog.blogId),
+          ];
+          setBlogs([...filteredBlogs, updated]);
+          setCredentials(newCredentials);
+        } catch {
+          console.log("Unknown error after refresh");
+        }
+      } catch (error) {
+        console.log("error trying to do refresh.");
+      }
       console.log(error);
     }
   };
@@ -141,7 +180,11 @@ const AutoGrowingTextarea = (props: TAProps) => {
         data-expandable
         onMouseOver={() => setHighlighted(true)}
         onMouseLeave={() => setHighlighted(false)}
-        className={textType == "paragraph" ? "text-[20px] w-full rounded relative z-10 w-full hover:cursor-pointer" : "text-2xl font-bold hover:cursor-pointer w-full"}
+        className={
+          textType == "paragraph"
+            ? "text-[20px] w-full rounded relative z-10 w-full hover:cursor-pointer"
+            : "text-2xl font-bold hover:cursor-pointer w-full"
+        }
       />{" "}
       <button
         onMouseDown={handleSaveClicked}
