@@ -24,13 +24,7 @@ const apiClient = axios.create({
   },
 });
 
-const config = {
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("jwt")}`
-  },
-};
 
-//TODO: Just send the JWT , not the adminID and all that in the body. Just the blog and the JWT. Then if jwt is expired, refresh.
 
 export const adminLoginRequest = async (loginUser: LoginUser) => {
   return apiClient
@@ -42,18 +36,28 @@ export const adminLoginRequest = async (loginUser: LoginUser) => {
 };
 
 export const initializeNewBlog = async (initBlog: InitBlog) => {
-  //TODO: This sends json token, no adminId. Parse the adminID on the token.
+  const config = {
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("jwt")}`
+  },
+};
+  console.log(config)
   return apiClient
     .post("/blog", initBlog, config)
     .then((res) => res.data)
     .catch((err) => {
-      console.log(err);
+      throw err.response.data.errors;
     });
 };
 
 export const tryCreateTextBlock = async (textBlock: TextBlock) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("jwt")}`
+    },
+  };
   return apiClient
-    .post(`/content/text`, textBlock)
+    .post(`/content/text`, textBlock, config)
     .then((res) => res.data)
     .catch((err) => {
       throw err.response.data.errors;
@@ -61,17 +65,27 @@ export const tryCreateTextBlock = async (textBlock: TextBlock) => {
 }
 
 export const deleteTextBlock = async (textBlock: Displayable) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("jwt")}`
+    },
+  };
   return apiClient
-    .delete(`/content/text`, {data: textBlock})
+    .delete(`/content/text`, {...config, data: textBlock})
     .then((res) => res.data)
     .catch((err) => {
       throw err.response.data.errors;
     });
 };
 
-export const tryUpdateTextBlock = async (textBlock:Displayable) => {
+export const tryUpdateTextBlock = async (textBlock: Displayable) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("jwt")}`
+    },
+  };
   return apiClient
-    .put(`/content/text`, textBlock)
+    .put(`/content/text`, textBlock, config)
     .then((res) => res.data)
     .catch((err) => {
       throw err.response.status;
@@ -79,17 +93,25 @@ export const tryUpdateTextBlock = async (textBlock:Displayable) => {
 }
 
 export const tryUpdateBlog = async (blog: Blog) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("jwt")}`
+    },
+  };
   return apiClient
-    .put(`/blog`, blog)
+    .put(`/blog`, blog, config)
     .then((res) => res.data)
     .catch((err) => {throw err.response.status})
 }
 
 export const tryUpdateDraggedDtoOrder = async (displayable: Displayable) => {
-
-  console.log(displayable, "is the displayable to be reordered.")
+  const config = {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("jwt")}`
+    },
+  };
   return apiClient
-    .put(`/content/reorder`, displayable)
+    .put(`/content/reorder`, displayable, config)
     .then((res) => res.data)
     .catch((err)=>{throw err.response.status})
 }

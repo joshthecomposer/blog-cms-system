@@ -256,6 +256,17 @@ public class AdminController : ControllerBase
         Claim? verifiedClaim = handler.ReadJwtToken(credentials).Claims.Where(c => c.Value == id.ToString()).FirstOrDefault();
         return verifiedClaim == null ? false : true;
     }
+	public static int GetClaimFromToken(AuthenticationHeaderValue input)
+	{
+		JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+		string? credentials = input.Parameter;
+		if (credentials==null || credentials==string.Empty){ return -1; }
+		var verifiedClaim = handler.ReadJwtToken(credentials).Claims
+			.Select(c => c.Value).FirstOrDefault();
+		if (verifiedClaim == null || credentials==string.Empty) { return -1; };
+
+		return Int32.Parse(verifiedClaim);
+	}
 
     //==================================================
 }

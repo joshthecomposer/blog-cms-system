@@ -7,7 +7,7 @@ import { tryUpdateDraggedDtoOrder } from "../utils/apiRequests";
 
 const BlogView = () => {
   const [currentBlog, setCurrentBlog] = useLocalStorage("currentBlog", {});
-  useEffect(() => { }, [currentBlog]);
+  useEffect(() => {}, [currentBlog]);
 
   const onDragOver = (event: any) => {
     event.preventDefault();
@@ -33,7 +33,7 @@ const BlogView = () => {
       const response = await tryUpdateDraggedDtoOrder(draggedItem);
       setCurrentBlog({ ...response });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -75,7 +75,10 @@ const BlogView = () => {
                   );
                 case "Image":
                   return (
-                    <div className="w-full">
+                    <div
+                      key={`${d.displayableId}-${d.dataType}`}
+                      className="w-full"
+                    >
                       <img
                         key={`${d.displayableId}-${d.dataType}`}
                         onDragOver={(event) => onDragOver(event)}

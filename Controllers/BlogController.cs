@@ -9,7 +9,7 @@ using MyApp.Data;
 using MyApp.DTOs;
 
 namespace MyApp.Controllers;
-// [Authorize]
+[Authorize]
 [ApiController]
 [Route("api/blog")]
 public class BlogController : Controller
@@ -24,14 +24,13 @@ public class BlogController : Controller
 	[HttpPost]
 	public async Task<ActionResult<Blog>> InitializeBlog(Blog newBlog)
 	{
-		//TODO: THis will have the ID in the auth headers, parse it and all that.
 		if (ModelState.IsValid)
 		{
-			// bool isValid = AdminController.VerifyClaim(AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]), newBlog.AdminId);
-			// if (!isValid)
-			// {
-			// 	return Unauthorized("Claim verification failed.");
-			// }
+			int claim = AdminController.GetClaimFromToken(AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]));
+			if (claim == -1)
+			{
+				return Unauthorized();
+			}
 			await _db.Blogs.AddAsync(newBlog);
 			await _db.SaveChangesAsync();
 
@@ -48,6 +47,11 @@ public class BlogController : Controller
 		{
 			return BadRequest("Resource not found.");
 		}
+		int claim = AdminController.GetClaimFromToken(AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]));
+		if (claim != blog.AdminId)
+		{
+			return Unauthorized();
+		}
 		return blog;
 	}
 
@@ -55,7 +59,8 @@ public class BlogController : Controller
 	public async Task<ActionResult<Blog>> DeleteById(int blogId)
 	{
 		var blog = await _db.Blogs.FindAsync(blogId);
-		if (blog != null)
+		int claim = AdminController.GetClaimFromToken(AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]));
+		if (blog != null && claim == blog.AdminId)
 		{
 			var deleted = _db.Blogs.Remove(blog);
 			await _db.SaveChangesAsync();
@@ -64,11 +69,12 @@ public class BlogController : Controller
 		return BadRequest("Resource not found");
 	}
 
-	[HttpGet("media/text/{adminId}")]
-	public async Task<ActionResult<List<BlogWithOrderedContentDto>>> GetAllBlogsWithContentByAdminId(int adminId)
+	[HttpGet("media/text")]
+	public async Task<ActionResult<List<BlogWithOrderedContentDto>>> GetAllBlogsWithContentByAdminId()
 	{
+		int claim = AdminController.GetClaimFromToken(AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]));
 		var blogs = await _db.Blogs
-			.Where(b => b.AdminId == adminId)
+			.Where(b => b.AdminId == claim)
 			.Include(b => b.Images)
 			.Include(b => b.TextBlocks)
 			.Include(b => b.Tweets)

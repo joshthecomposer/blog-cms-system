@@ -4,11 +4,14 @@ using MyApp.Models.Content;
 using MyApp.Data;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Authorization;
 using System.Text.Json.Serialization;
 using MyApp.DTOs;
 using MyApp.Interfaces;
 
 namespace MyApp.Controllers;
+[Authorize]
 [ApiController]
 [Route("api/content")]
 public class ContentController : ControllerBase
@@ -23,15 +26,21 @@ public class ContentController : ControllerBase
 	}
 
 	[HttpPost("text")]
-	public async Task<ActionResult<BlogWithOrderedContentDto>> CreateTextBlock([FromBody]TextBlock newText)
+	public async Task<ActionResult<BlogWithOrderedContentDto>> CreateTextBlock([FromBody] TextBlock newText)
 	{
 		if (ModelState.IsValid)
 		{
+			int claim = AdminController.GetClaimFromToken(AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]));
+
+			bool check = await _db.Blogs.Where(b => b.AdminId == claim).AnyAsync();
+			if (check == false) { return BadRequest(); };
+
 			newText.DisplayOrder = await GetNewOrderForDb(newText.DisplayOrder, newText.BlogId);
 
 			await _db.TextBlocks.AddAsync(newText);
 			await _db.SaveChangesAsync();
-			var blog = await _db.Blogs.Where(b => b.BlogId == newText.BlogId).FirstOrDefaultAsync();
+
+			var blog = await _db.Blogs.Where(b => b.BlogId == newText.BlogId && b.AdminId == claim).FirstOrDefaultAsync();
 			if (blog != null)
 			{
 				return new BlogWithOrderedContentDto(blog);
@@ -147,7 +156,6 @@ public class ContentController : ControllerBase
 	public async Task<ActionResult<List<DisplayableDto>>> GetMediaAndTextByBlogId(int blogId)
 	{
 
-		//TODO: Combine this into one query, and look elsewhere for more to combine.
 		var blog = await _db.Blogs
 			.Where(b => b.BlogId == blogId)
 			.Include(b => b.TextBlocks)
@@ -170,8 +178,9 @@ public class ContentController : ControllerBase
 	}
 
 	[HttpPut("text")]
-	public async Task<ActionResult<BlogWithOrderedContentDto>> UpdateTextBlockContent([FromBody]DisplayableDto displayable)
+	public async Task<ActionResult<BlogWithOrderedContentDto>> UpdateTextBlockContent([FromBody] DisplayableDto displayable)
 	{
+
 		var oldTextBlock = await _db.TextBlocks.Where(t => t.TextBlockId == displayable.DisplayableId).FirstOrDefaultAsync();
 		if (oldTextBlock != null)
 		{
@@ -192,12 +201,12 @@ public class ContentController : ControllerBase
 	}
 
 	[HttpDelete("text")]
-	public async Task<ActionResult<BlogWithOrderedContentDto>> DeleteTextBlockById([FromBody]DisplayableDto input)
+	public async Task<ActionResult<BlogWithOrderedContentDto>> DeleteTextBlockById([FromBody] DisplayableDto input)
 	{
 		var blog = await _db.Blogs
 		.Include(b => b.TextBlocks)
-		.Include(b=>b.Images)
-		.Include(b=>b.Tweets)
+		.Include(b => b.Images)
+		.Include(b => b.Tweets)
 		.SingleOrDefaultAsync(b => b.BlogId == input.BlogId);
 		if (blog != null)
 		{
@@ -219,17 +228,20 @@ public class ContentController : ControllerBase
 	{
 		if (ModelState.IsValid)
 		{
-			switch(input.DataType)
+			int claim = AdminController.GetClaimFromToken(AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]));
+			bool check = await _db.Blogs.Where(b => b.BlogId == input.BlogId && b.AdminId == claim).AnyAsync();
+			if (!check) { return Unauthorized(); }
+			switch (input.DataType)
 			{
 				case "TextBlock":
 					var oldTB = await _db.TextBlocks.Where(t => t.TextBlockId == input.DisplayableId).FirstOrDefaultAsync();
-					if (oldTB == null){return NotFound();}
-			 		oldTB.DisplayOrder = await GetNewOrderForDb(input.DisplayOrder, input.BlogId);
+					if (oldTB == null) { return NotFound(); }
+					oldTB.DisplayOrder = await GetNewOrderForDb(input.DisplayOrder, input.BlogId);
 					break;
 				case "Image":
 					var oldI = await _db.Images.Where(t => t.ImageId == input.DisplayableId).FirstOrDefaultAsync();
-					if (oldI == null){return NotFound();}
-			 		oldI.DisplayOrder = await GetNewOrderForDb(input.DisplayOrder, input.BlogId);
+					if (oldI == null) { return NotFound(); }
+					oldI.DisplayOrder = await GetNewOrderForDb(input.DisplayOrder, input.BlogId);
 					break;
 			}
 			await _db.SaveChangesAsync();

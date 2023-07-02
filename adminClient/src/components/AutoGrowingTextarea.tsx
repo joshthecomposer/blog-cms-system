@@ -28,8 +28,6 @@ const AutoGrowingTextarea = (props: TAProps) => {
     }
   }, [text]);
 
-  //TODO: track whether the user actually started editing the blog or not and don't send alert when changing
-  //blogs if not.
   const handleTextareaChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
@@ -122,10 +120,6 @@ const AutoGrowingTextarea = (props: TAProps) => {
     setDeleteIsClicked(true);
     confirmDelete();
   };
-
-  //TODO:  maybe blog view page should be a seperate query?
-  //WE could do a rotating cache on the local storage where at most 2 blogs are stored instead of all of them? Then when the view blog is clicked it is checked against the cached blogs and if none, queried.
-  //Localstorage on login will be populatd with just the title and the id etc, just what is needed to get the blog when viewing.
 
   useEffect(() => {
     //@ts-ignore
