@@ -11,7 +11,6 @@ const BlogView = () => {
 
   const onDragOver = (event: any) => {
     event.preventDefault();
-
   };
 
   const onDragStart = (event: any, index: any) => {
