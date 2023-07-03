@@ -24,6 +24,13 @@ const apiClient = axios.create({
   },
 });
 
+const formClient = axios.create({
+  baseURL: "/api",
+  headers: {
+    "Content-Type": "multipart/form-data"
+  },
+});
+
 
 
 export const adminLoginRequest = async (loginUser: LoginUser) => {
@@ -123,3 +130,16 @@ export const tryUpdateDraggedDtoOrder = async (displayable: Displayable, jwt:str
     .then((res) => res.data)
     .catch((err)=>{throw err.response})
 }
+
+export const tryUploadImage = async (formData:FormData, jwt:string) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${jwt}`
+    },
+  };
+  return formClient
+    .post(`/content/image`, formData, config)
+    .then((res) => res.data)
+    .catch((err) => { throw err.response });
+}
+

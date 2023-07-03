@@ -2,19 +2,19 @@ import { BiX, BiEdit } from "react-icons/bi";
 import { useState, useEffect } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { Blog, TextBlock } from "../types/Types";
-import { tryCreateTextBlock, tryRefresh } from "../utils/apiRequests";
+import { tryCreateTextBlock, tryRefresh, tryUploadImage } from "../utils/apiRequests";
 
 interface BlogEditorProps {
   currentBlog: Blog;
   setCurrentBlog: Function;
 }
 
-
 const BlogEditorTool = (props: BlogEditorProps) => {
   const { currentBlog, setCurrentBlog } = props;
   const [blogs, setBlogs] = useLocalStorage("blogs", []);
   const [editorShowing, setEditorShowing] = useState<boolean>(false);
   const [credentials, setCredentials] = useLocalStorage("credentials", {})
+
   const addTextBlock = async (contentType: string) => {
     let newDisplayOrder: number = 1;
     if (currentBlog.displayables.length > 0) {
@@ -65,6 +65,43 @@ const BlogEditorTool = (props: BlogEditorProps) => {
       }
     }
   };
+
+  const handleImageUpload = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    let newDisplayOrder: number = 1;
+    if (currentBlog.displayables.length > 0) {
+      newDisplayOrder =
+        currentBlog.displayables[currentBlog.displayables.length - 1]
+          .displayOrder + 1;
+    }
+    const input = event.currentTarget.elements.namedItem('input-file-id') as HTMLInputElement
+
+    const file = input.files?.[0]
+
+    if (!file) {
+      console.error("no file selected")
+      return
+    }
+
+    const formData = new FormData();
+
+    formData.append('file', file, file.name)
+    formData.append('blogId', currentBlog.blogId.toString())
+    formData.append('displayOrder', newDisplayOrder.toString());
+
+    try {
+      const res = await tryUploadImage(formData, credentials.jwt);
+      const updatedBlog = res;
+      setCurrentBlog(updatedBlog);
+      const filtered = blogs.filter(
+        (b: Blog) => b.blogId !== currentBlog.blogId
+      );
+      setBlogs([...filtered, updatedBlog]);
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
 
   const toggleEditor = () => {
     return setEditorShowing(!editorShowing);
@@ -120,13 +157,14 @@ const BlogEditorTool = (props: BlogEditorProps) => {
         <form
           className="border-[1px] rounded shadow-sm py-3 px-2"
           encType="multipart/form-data"
+          onSubmit={handleImageUpload}
         >
           <div className="flex flex-col gap-2">
             <label>Upload an Image:</label>
             <input
+              id="input-file-id"
               className="border-[1px] rounded"
               type="file"
-              multiple
               placeholder="past tweet id..."
             />
             <button className="bg-emerald-500 rounded text-indigo-100">

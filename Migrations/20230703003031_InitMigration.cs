@@ -84,7 +84,7 @@ namespace MyApp.Migrations
                     ImageId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     DisplayOrder = table.Column<int>(type: "integer", nullable: false),
-                    Url = table.Column<string>(type: "text", nullable: false),
+                    Url = table.Column<string>(type: "text", nullable: true),
                     Caption = table.Column<string>(type: "text", nullable: true),
                     BlogId = table.Column<int>(type: "integer", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -151,42 +151,42 @@ namespace MyApp.Migrations
             migrationBuilder.InsertData(
                 table: "Admins",
                 columns: new[] { "AdminId", "CreatedAt", "Email", "Name", "Password", "UpdatedAt" },
-                values: new object[] { 1, new DateTime(2023, 7, 2, 19, 0, 5, 256, DateTimeKind.Utc).AddTicks(6321), "bugs@acme.com", "Bugs Bunny", "AQAAAAIAAYagAAAAEILbOUlDoztBbiY/7zuC5tWPH5blOyv5nSAkz1YZFuZVK5BFdFxCYF61oKt45CVfmg==", new DateTime(2023, 7, 2, 19, 0, 5, 256, DateTimeKind.Utc).AddTicks(6324) });
+                values: new object[] { 1, new DateTime(2023, 7, 3, 0, 30, 31, 749, DateTimeKind.Utc).AddTicks(9719), "bugs@acme.com", "Bugs Bunny", "AQAAAAIAAYagAAAAEP6qwxpI5P7aPgKJYuNTFwuQwHlJixDwHA5l6iNcE8T2DwfDjRgAwW4U+qXVa+HdPQ==", new DateTime(2023, 7, 3, 0, 30, 31, 749, DateTimeKind.Utc).AddTicks(9722) });
 
             migrationBuilder.InsertData(
                 table: "Blogs",
                 columns: new[] { "BlogId", "AdminId", "CreatedAt", "Released", "Title", "UpdatedAt" },
                 values: new object[,]
                 {
-                    { 1, 1, new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9264), false, "The Eagles' Role in Middle-earth: Why the Ring Couldn't Be Taken to Mordor", new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9268) },
-                    { 2, 1, new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9272), false, "The Hobbits Are Eating", new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9273) },
-                    { 3, 1, new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9274), false, "Gandalf does Gandalf Things", new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9274) },
-                    { 4, 1, new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9275), false, "Some other blog", new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9276) },
-                    { 5, 1, new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9278), false, "Bloggy bloggy blog", new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9278) }
+                    { 1, 1, new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5220), false, "The Eagles' Role in Middle-earth: Why the Ring Couldn't Be Taken to Mordor", new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5224) },
+                    { 2, 1, new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5228), false, "The Hobbits Are Eating", new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5229) },
+                    { 3, 1, new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5230), false, "Gandalf does Gandalf Things", new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5231) },
+                    { 4, 1, new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5232), false, "Some other blog", new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5232) },
+                    { 5, 1, new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5233), false, "Bloggy bloggy blog", new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5234) }
                 });
 
             migrationBuilder.InsertData(
                 table: "Images",
                 columns: new[] { "ImageId", "BlogId", "Caption", "CreatedAt", "DisplayOrder", "UpdatedAt", "Url" },
-                values: new object[] { 1, 1, null, new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9327), 10, new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9327), "https://www.eagles.org/wp-content/uploads/2020/07/MG_7021-176-scaled.jpg" });
+                values: new object[] { 1, 1, null, new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5291), 10, new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5291), "https://www.eagles.org/wp-content/uploads/2020/07/MG_7021-176-scaled.jpg" });
 
             migrationBuilder.InsertData(
                 table: "TextBlocks",
                 columns: new[] { "TextBlockId", "BlogId", "Content", "CreatedAt", "DisplayOrder", "TextType", "UpdatedAt" },
                 values: new object[,]
                 {
-                    { 1, 1, "Introduction", new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9352), 20, "header", new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9352) },
-                    { 2, 1, "In J.R.R. Tolkien's epic fantasy masterpiece, \"The Lord of the Rings,\" the journey to destroy the One Ring and defeat the Dark Lord Sauron is a perilous undertaking. Throughout the story, readers often wonder why the characters didn't simply enlist the aid of the mighty eagles to transport the Ring to Mount Doom and bypass many of the dangers. In this blog post, we will explore the reasons why the eagles couldn't be the straightforward solution to the quest and delve into the deeper implications of their role in Middle-earth.", new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9359), 30, "paragraph", new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9359) },
-                    { 3, 1, "The Eagles' Nature and Loyalties:", new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9360), 40, "header", new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9360) },
-                    { 4, 1, "The eagles, led by Gwaihir and their lord Thorondor, are noble creatures with their own motivations and allegiances. They are not mere transportation devices but highly intelligent beings with their own concerns and priorities. Their primary role is to serve as messengers and scouts rather than a means of transportation for the characters' convenience.", new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9361), 50, "paragraph", new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9361) },
-                    { 5, 1, "The Corruption of the Ring:", new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9362), 60, "header", new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9363) },
-                    { 6, 1, "The One Ring possesses immense power and an inherent corrupting influence. Anyone who bears the Ring is susceptible to its allure and can become corrupted by its malevolent forces. While the eagles are mighty and noble, they too would be vulnerable to the Ring's seduction and potentially fall under its control. The risk of the Ring exerting its power over the eagles could lead to disastrous consequences for Middle-earth.", new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9363), 70, "paragraph", new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9364) }
+                    { 1, 1, "Introduction", new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5315), 20, "header", new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5316) },
+                    { 2, 1, "In J.R.R. Tolkien's epic fantasy masterpiece, \"The Lord of the Rings,\" the journey to destroy the One Ring and defeat the Dark Lord Sauron is a perilous undertaking. Throughout the story, readers often wonder why the characters didn't simply enlist the aid of the mighty eagles to transport the Ring to Mount Doom and bypass many of the dangers. In this blog post, we will explore the reasons why the eagles couldn't be the straightforward solution to the quest and delve into the deeper implications of their role in Middle-earth.", new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5319), 30, "paragraph", new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5319) },
+                    { 3, 1, "The Eagles' Nature and Loyalties:", new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5320), 40, "header", new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5320) },
+                    { 4, 1, "The eagles, led by Gwaihir and their lord Thorondor, are noble creatures with their own motivations and allegiances. They are not mere transportation devices but highly intelligent beings with their own concerns and priorities. Their primary role is to serve as messengers and scouts rather than a means of transportation for the characters' convenience.", new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5321), 50, "paragraph", new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5322) },
+                    { 5, 1, "The Corruption of the Ring:", new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5323), 60, "header", new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5323) },
+                    { 6, 1, "The One Ring possesses immense power and an inherent corrupting influence. Anyone who bears the Ring is susceptible to its allure and can become corrupted by its malevolent forces. While the eagles are mighty and noble, they too would be vulnerable to the Ring's seduction and potentially fall under its control. The risk of the Ring exerting its power over the eagles could lead to disastrous consequences for Middle-earth.", new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5324), 70, "paragraph", new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5324) }
                 });
 
             migrationBuilder.InsertData(
                 table: "Tweets",
                 columns: new[] { "TweetId", "BlogId", "CreatedAt", "DisplayOrder", "Signature", "UpdatedAt" },
-                values: new object[] { 1, 1, new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9378), 50, "463440424141459456", new DateTime(2023, 7, 2, 19, 0, 5, 332, DateTimeKind.Utc).AddTicks(9379) });
+                values: new object[] { 1, 1, new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5339), 50, "463440424141459456", new DateTime(2023, 7, 3, 0, 30, 31, 819, DateTimeKind.Utc).AddTicks(5339) });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Blogs_AdminId",

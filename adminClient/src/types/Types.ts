@@ -31,6 +31,14 @@ export type TextBlock = {
     blogId: number;
 }
 
+export type ImageToSend = {
+  file: File | null;
+  displayOrder: number;
+  caption?: string;
+
+  blogId: number;
+}
+
 // export type Media = {
 //     mediaId: number;
 //     url?: string;

@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.Authorization;
 using System.Text.Json.Serialization;
 using MyApp.DTOs;
 using MyApp.Interfaces;
+using Amazon.S3;
+using Amazon.S3.Model;
+using Amazon.S3.Endpoints;
 
 namespace MyApp.Controllers;
 [Authorize]
@@ -37,7 +40,7 @@ public class ContentController : ControllerBase
 
 				var token = authHeader.Parameter;
 
-				if(string.IsNullOrEmpty(token))
+				if (string.IsNullOrEmpty(token))
 				{
 					return BadRequest("Token was null or empty");
 				}
@@ -144,38 +147,98 @@ public class ContentController : ControllerBase
 	}
 
 	//TODO: split this to where if there is a file it uploads otherwise it just saves a url.
-	[HttpPost("media")]
-	public async Task<ActionResult<Image>> HandleImageUpload(IFormFile file, [FromForm] Image newMedia)
+	[HttpPost("image")]
+	public async Task<ActionResult<Image>> HandleImageUpload(IFormFile file, [FromForm] Image newImage)
 	{
-		if (file != null && file.Length > 0 && ModelState.IsValid)
+		try
 		{
-			string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-			string filePath = Path.Combine("wwwroot/uploads/", fileName);
-			Console.WriteLine(filePath + " is the file path");
-			try
+			var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
+
+			var token = authHeader.Parameter;
+			if (string.IsNullOrEmpty(token))
 			{
-				using (var stream = new FileStream(filePath, FileMode.Create))
+				return BadRequest("Token was null or empty");
+			}
+			var principal = AdminController.GetPrincipalFromExpiredToken(token, _config["AppSecrets:JWTSecret"]!);
+			if (principal?.Identity?.Name == null)
+			{
+				return Unauthorized("Principal was null or name was null");
+			}
+			if (!int.TryParse(principal.Identity.Name, out int id))
+			{
+				return BadRequest("Identity name was not a valid integer.");
+			}
+
+			var check = await _db.Blogs.Where(b => b.BlogId == newImage.BlogId && b.AdminId == id).AnyAsync();
+			if (!check) { return BadRequest("Resource not found for the given BlogId or Claim"); }
+
+			if (file != null && file.Length > 0 && ModelState.IsValid)
+			{
+				var awsAccessId = _config["AppSecrets:S3_ACCESS"];
+				var awsSecret = _config["AppSecrets:S3_SECRET"];
+				// var bucketRegion = S3Region.USEast1;
+				var bucketName = _config["AppSecrets:S3_BUCKETNAME"];
+
+				using (var client = new AmazonS3Client(awsAccessId, awsSecret))
 				{
-					await file.CopyToAsync(stream);
+					string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+
+					using (var newMemoryStream = new MemoryStream())
+					{
+						file.CopyTo(newMemoryStream);
+
+						var uploadRequest = new PutObjectRequest
+						{
+							BucketName = bucketName,
+							Key = fileName,
+							InputStream = newMemoryStream
+						};
+
+						var response = await client.PutObjectAsync(uploadRequest);
+
+						if (response.HttpStatusCode != System.Net.HttpStatusCode.OK)
+						{
+							return BadRequest("Something went wrong uploading to S3");
+						}
+					}
+
+					var cfUrl = _config["AppSecrets:CF_URL"];
+					if (string.IsNullOrEmpty(cfUrl)) { return BadRequest("CF url not in user secrets"); }
+					string filePath = Path.Combine(cfUrl, fileName);
+					Console.WriteLine(filePath + " is the file path");
+
+					newImage.Url = filePath;
+					newImage.DisplayOrder = await GetNewOrderForDb(newImage.DisplayOrder, newImage.BlogId);
+					await _db.AddAsync(newImage);
+					await _db.SaveChangesAsync();
+					var blog = await _db.Blogs
+						.Include(b => b.Images)
+						.Include(b => b.TextBlocks)
+						.Where(b => b.BlogId == newImage.BlogId).FirstOrDefaultAsync();
+
+					if (blog == null) { return BadRequest("Something when wrong when trying to fetch the blog after adding image."); }
+
+					return CreatedAtAction(nameof(GetImageById), new { imageId = newImage.ImageId }, new BlogWithOrderedContentDto(blog));
 				}
 			}
-			catch (Exception e)
-			{
-				return BadRequest(e.Message);
-			}
-			newMedia.Url = filePath;
-			newMedia.DisplayOrder = await GetNewOrderForDb(newMedia.DisplayOrder, newMedia.BlogId);
-			await _db.AddAsync(newMedia);
-			await _db.SaveChangesAsync();
-			return CreatedAtAction(nameof(GetImageById), new { id = newMedia.ImageId }, newMedia);
+			return BadRequest();
 		}
-		return BadRequest();
+		catch (FormatException)
+		{
+			return BadRequest("Authorization header format was invalid");
+		}
+		catch (Exception e)
+		{
+			Console.WriteLine(e.Message);
+			return BadRequest(e.Message);
+		}
 	}
 
-	[HttpGet("media/{mediaId}")]
-	public async Task<ActionResult<Image>> GetImageById(int mediaId)
+
+	[HttpGet("media/{imageId}")]
+	public async Task<ActionResult<Image>> GetImageById(int imageId)
 	{
-		var media = await _db.Images.FindAsync(mediaId);
+		var media = await _db.Images.FindAsync(imageId);
 		if (media == null)
 		{
 			return BadRequest(new { Message = "Resource not found." });

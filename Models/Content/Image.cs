@@ -10,7 +10,7 @@ public class Image : BaseEntity, IDisplayable
     [Key]
     public int ImageId { get; set; }
     public int DisplayOrder { get; set; }
-	public string Url { get; set; }
+	public string? Url { get; set; }
 	public string? Caption { get; set; }
 
 	public int BlogId { get; set; }
