@@ -4,6 +4,7 @@ import BlogEditorTool from "../components/BlogEditorTool";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { useEffect } from "react";
 import { tryRefresh, tryUpdateDraggedDtoOrder } from "../utils/apiRequests";
+import { TwitterTweetEmbed } from "react-twitter-embed";
 
 const BlogView = () => {
   const [currentBlog, setCurrentBlog] = useLocalStorage("currentBlog", {});
@@ -48,6 +49,7 @@ const BlogView = () => {
           console.log(error);
         }
       } catch (error) {
+        console.log(error)
         console.log("ERROR REFRESHING")
       }
     }
@@ -106,8 +108,24 @@ const BlogView = () => {
                       />
                     </div>
                   );
+                case "Tweet":
+                  return (
+                    <div
+                    key={`${d.displayableId}-${d.dataType}`}
+                    onDragOver={(event) => onDragOver(event)}
+                    onDragStart={(event) => onDragStart(event, index)}
+                    onDrop={(event) => onDrop(event, index)}
+                      draggable
+                      className="relative"
+                    >
+                      {/* <div className="absolute top-0 left-0 w-2 h-2 bg-red-500">
+
+                      </div> */}
+                      <TwitterTweetEmbed tweetId={d.signature} />
+                  </div>
+                  )
                 default:
-                  return null;
+                  null
               }
             })}
         </div>

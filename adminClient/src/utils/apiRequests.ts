@@ -1,5 +1,5 @@
 import axios from "axios";
-import {Blog, Displayable, RefReq, TextBlock } from "../types/Types";
+import {Blog, Displayable, RefReq, TextBlock, Tweet } from "../types/Types";
 
 interface LoginUser {
   email: string;
@@ -142,4 +142,17 @@ export const tryUploadImage = async (formData:FormData, jwt:string) => {
     .then((res) => res.data)
     .catch((err) => { throw err.response });
 }
+
+export const tryCreateTweetEmbed = async (newTweet: Tweet, jwt:string) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${jwt}`
+    },
+  };
+  return apiClient
+    .post(`/content/tweet`, newTweet, config)
+    .then((res) => res.data)
+    .catch((err) => { throw err.response });
+}
+
 

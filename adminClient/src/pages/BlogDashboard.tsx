@@ -11,8 +11,6 @@ const BlogDashboard = () => {
   //@ts-ignore
   const [currentBlog, setCurrentBlog] = useLocalStorage("currentBlog", {});
 
-
-  //TODO: make a custom alert box instead
   const handleCurrentBlog = (blogId: number) => {
     if (parseInt(currentBlog.blogId) === blogId) {
       navigate("/admin/blog/" + blogId);

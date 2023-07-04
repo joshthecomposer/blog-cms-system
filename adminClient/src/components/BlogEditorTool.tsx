@@ -1,8 +1,8 @@
 import { BiX, BiEdit } from "react-icons/bi";
 import { useState, useEffect } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
-import { Blog, TextBlock } from "../types/Types";
-import { tryCreateTextBlock, tryRefresh, tryUploadImage } from "../utils/apiRequests";
+import { Blog, TextBlock, Tweet } from "../types/Types";
+import { tryCreateTextBlock, tryCreateTweetEmbed, tryRefresh, tryUploadImage } from "../utils/apiRequests";
 
 interface BlogEditorProps {
   currentBlog: Blog;
@@ -14,6 +14,11 @@ const BlogEditorTool = (props: BlogEditorProps) => {
   const [blogs, setBlogs] = useLocalStorage("blogs", []);
   const [editorShowing, setEditorShowing] = useState<boolean>(false);
   const [credentials, setCredentials] = useLocalStorage("credentials", {})
+  const [newTweet, setNewTweet] = useState<Tweet>({
+    blogId: currentBlog.blogId,
+    signature: "",
+    displayOrder: 0,
+  })
 
   const addTextBlock = async (contentType: string) => {
     let newDisplayOrder: number = 1;
@@ -23,7 +28,7 @@ const BlogEditorTool = (props: BlogEditorProps) => {
           .displayOrder + 1;
     }
     let newText: TextBlock = {
-      content: "...", //TODO: make a faker instance that generates a bit of lorem for this instead of ...
+      content: "...",
       blogId: currentBlog.blogId,
       displayOrder: newDisplayOrder,
       textType: contentType,
@@ -66,6 +71,53 @@ const BlogEditorTool = (props: BlogEditorProps) => {
     }
   };
 
+  const handleEmbedTweet = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    let newDisplayOrder: number = 1;
+    if (currentBlog.displayables.length > 0) {
+      newDisplayOrder =
+        currentBlog.displayables[currentBlog.displayables.length - 1]
+          .displayOrder + 1;
+    }
+    let payload = { ...newTweet, displayorder: newDisplayOrder };
+    try {
+      const res = await tryCreateTweetEmbed(payload, credentials.jwt)
+      const blog = res;
+      const filtered = blogs.filter(
+        (b: Blog) => b.blogId !== currentBlog.blogId
+      );
+      setBlogs([...filtered, blog]);
+      setCurrentBlog(blog);
+
+    } catch (err) {
+      try {
+        const res = await tryRefresh({
+          accessToken: credentials.jwt,
+          refreshToken: credentials.rft,
+        });
+        const newCredentials = {
+          ...credentials,
+          jwt: res.accessToken,
+          rft: res.refreshToken,
+        };
+        try {
+          const res = await tryCreateTweetEmbed(payload, newCredentials.jwt)
+          const blog = res;
+          const filtered = blogs.filter(
+            (b: Blog) => b.blogId !== currentBlog.blogId
+          );
+          setBlogs([...filtered, blog]);
+          setCurrentBlog(blog);
+          setCredentials({ ...newCredentials });
+        } catch (err) {
+          console.log("refresh successfull but unknown error.");
+        }
+      } catch (err) {
+        console.log("error refreshing...");
+      }
+
+    }
+  }
   const handleImageUpload = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     let newDisplayOrder: number = 1;
@@ -101,6 +153,10 @@ const BlogEditorTool = (props: BlogEditorProps) => {
       console.log(error)
     }
 
+  }
+
+  const handleTweetChange = (e: any) => {
+    setNewTweet({ ...newTweet, signature: e.target.value });
   }
 
   const toggleEditor = () => {
@@ -141,13 +197,15 @@ const BlogEditorTool = (props: BlogEditorProps) => {
         >
           &lt;p&gt;Paragraph&lt;/p&gt;
         </p>
-        <form className="border-[1px] rounded shadow-sm py-3 px-2">
+        <form onSubmit={handleEmbedTweet} className="border-[1px] rounded shadow-sm py-3 px-2">
           <div className="flex flex-col gap-2">
             <label>Embed a tweet:</label>
             <input
               className="border-[1px] rounded"
               type="text"
               placeholder="past tweet id..."
+              value={newTweet.signature}
+              onChange={handleTweetChange}
             />
             <button className="bg-indigo-500 rounded text-indigo-100">
               Embed

@@ -184,7 +184,7 @@ public class AdminController : ControllerBase
     }
 
     [HttpPost("tokens/refresh")]
-    public async Task<ActionResult<RefreshRequest>> DoRefreshToken([FromBody] RefreshRequest refreshRequest)
+    public async Task<ActionResult<RefreshRequest>> DoRefreshToken(RefreshRequest refreshRequest)
     {
         if (ModelState.IsValid)
         {
@@ -219,7 +219,7 @@ public class AdminController : ControllerBase
                 return result;
             }
         }
-        return BadRequest("Invalid refresh request.");
+		return BadRequest("Invalid Refresh Request");
     }
 
     public static ClaimsPrincipal? GetPrincipalFromExpiredToken(string? token, string jwtSecret)

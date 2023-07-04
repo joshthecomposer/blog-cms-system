@@ -97,6 +97,11 @@ public class ContentController : ControllerBase
 				.Select(m => (IDisplayable)m)
 				.ToListAsync();
 
+		var tweets = await _db.Tweets
+				.Where(t => t.BlogId == blogId)
+				.Select(t => (IDisplayable)t)
+				.ToListAsync();
+
 		List<IDisplayable> displayables = textBlocks.Concat(media).OrderBy(d => d.DisplayOrder).ToList();
 		int maxDisplayOrder = displayables.Select(d => d.DisplayOrder).DefaultIfEmpty(0).Max();
 
@@ -146,7 +151,6 @@ public class ContentController : ControllerBase
 		return text;
 	}
 
-	//TODO: split this to where if there is a file it uploads otherwise it just saves a url.
 	[HttpPost("image")]
 	public async Task<ActionResult<Image>> HandleImageUpload(IFormFile file, [FromForm] Image newImage)
 	{
@@ -171,9 +175,12 @@ public class ContentController : ControllerBase
 
 			var check = await _db.Blogs.Where(b => b.BlogId == newImage.BlogId && b.AdminId == id).AnyAsync();
 			if (!check) { return BadRequest("Resource not found for the given BlogId or Claim"); }
-
 			if (file != null && file.Length > 0 && ModelState.IsValid)
 			{
+				long maxFileLength = 1 * 1024 * 1024;
+
+				if (file.Length > maxFileLength) { return BadRequest("File size limit exceeded"); }
+
 				var awsAccessId = _config["AppSecrets:S3_ACCESS"];
 				var awsSecret = _config["AppSecrets:S3_SECRET"];
 				// var bucketRegion = S3Region.USEast1;
@@ -274,7 +281,6 @@ public class ContentController : ControllerBase
 	[HttpPut("text")]
 	public async Task<ActionResult<BlogWithOrderedContentDto>> UpdateTextBlockContent([FromBody] DisplayableDto displayable)
 	{
-
 		var oldTextBlock = await _db.TextBlocks.Where(t => t.TextBlockId == displayable.DisplayableId).FirstOrDefaultAsync();
 		if (oldTextBlock != null)
 		{
@@ -317,6 +323,63 @@ public class ContentController : ControllerBase
 		return BadRequest("TextBlock not found");
 	}
 
+	[HttpPost("tweet")]
+	public async Task<ActionResult<BlogWithOrderedContentDto>> CreateTweet(Tweet tweet)
+	{
+		if (ModelState.IsValid)
+		{
+			try
+			{
+				var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
+
+				var token = authHeader.Parameter;
+				if (string.IsNullOrEmpty(token))
+				{
+					return BadRequest("Token was null or empty");
+				}
+				var principal = AdminController.GetPrincipalFromExpiredToken(token, _config["AppSecrets:JWTSecret"]!);
+				if (principal?.Identity?.Name == null)
+				{
+					return Unauthorized("Principal was null or name was null");
+				}
+				if (!int.TryParse(principal.Identity.Name, out int id))
+				{
+					return BadRequest("Identity name was not a valid integer.");
+				}
+
+				var check = await _db.Blogs
+					.AnyAsync(b=>b.BlogId == tweet.BlogId && b.BlogId == id);
+				if (!check) { return NotFound("Blog not found."); }
+
+
+				await _db.Tweets.AddAsync(tweet);
+				await _db.SaveChangesAsync();
+
+				var blog = await _db.Blogs
+					.Where(b => b.BlogId == tweet.BlogId)
+					.Include(b => b.TextBlocks)
+					.Include(b => b.Images)
+					.Include(b=>b.Tweets)
+					.FirstOrDefaultAsync();
+
+				if (blog == null) { return NotFound("Blog not found."); }
+
+				return new BlogWithOrderedContentDto(blog);
+			}
+			catch (FormatException)
+			{
+				return BadRequest("Authorization header format was invalid");
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message);
+				return BadRequest(e.Message);
+			}
+
+		}
+		return BadRequest(ModelState);
+	}
+
 	[HttpPut("reorder")]
 	public async Task<ActionResult<BlogWithOrderedContentDto>> ReorderBlogContent(DisplayableDto input)
 	{
@@ -353,11 +416,19 @@ public class ContentController : ControllerBase
 						if (oldI == null) { return NotFound(); }
 						oldI.DisplayOrder = await GetNewOrderForDb(input.DisplayOrder, input.BlogId);
 						break;
+					case "Tweet":
+						var oldT = await _db.Tweets.Where(t => t.TweetId == input.DisplayableId).FirstOrDefaultAsync();
+						if (oldT == null) { return NotFound(); }
+						oldT.DisplayOrder = await GetNewOrderForDb(input.DisplayOrder, input.BlogId);
+						break;
+					default:
+						return BadRequest("Something went wrong trying to reorder content, the specified datatype was invalid");
 				}
 				await _db.SaveChangesAsync();
 				var blog = await _db.Blogs.Where(b => b.BlogId == input.BlogId)
 					.Include(b => b.TextBlocks)
 					.Include(b => b.Images)
+					.Include(b=>b.Tweets)
 					.FirstOrDefaultAsync();
 				if (blog == null)
 				{
