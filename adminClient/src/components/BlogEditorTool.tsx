@@ -203,12 +203,13 @@ const BlogEditorTool = (props: BlogEditorProps) => {
             <input
               className="border-[1px] rounded"
               type="text"
-              placeholder="past tweet id..."
+              placeholder="!!!Disabled for now!!!"
               value={newTweet.signature}
               onChange={handleTweetChange}
+              disabled
             />
-            <button className="bg-indigo-500 rounded text-indigo-100">
-              Embed
+            <button disabled className="bg-indigo-500 rounded text-indigo-100">
+              !Disabled!
             </button>
           </div>
         </form>
