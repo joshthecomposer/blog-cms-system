@@ -1,15 +1,21 @@
-import { Displayable } from "../types/Types";
+import { Blog, Displayable } from "../types/Types";
 import AutoGrowingTextarea from "../components/AutoGrowingTextarea";
 import BlogEditorTool from "../components/BlogEditorTool";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { useEffect } from "react";
-import { tryRefresh, tryUpdateDraggedDtoOrder } from "../utils/apiRequests";
+import {
+  tryDeleteImage,
+  tryRefresh,
+  tryUpdateDraggedDtoOrder,
+} from "../utils/apiRequests";
 // import { TwitterTweetEmbed } from "react-twitter-embed";
 
 const BlogView = () => {
   const [currentBlog, setCurrentBlog] = useLocalStorage("currentBlog", {});
-  useEffect(() => { }, [currentBlog]);
+  useEffect(() => {}, [currentBlog]);
   const [credentials, setCredentials] = useLocalStorage("credentials", {});
+
+  const [blogs, setBlogs] = useLocalStorage("blogs", {});
 
   const onDragOver = (event: any) => {
     event.preventDefault();
@@ -33,24 +39,76 @@ const BlogView = () => {
       draggedItem.displayOrder = tempList[index - 1].displayOrder + 1;
     }
     try {
-      const response = await tryUpdateDraggedDtoOrder(draggedItem, credentials.jwt);
+      const response = await tryUpdateDraggedDtoOrder(
+        draggedItem,
+        credentials.jwt
+      );
       setCurrentBlog({ ...response });
     } catch (error) {
       try {
-        const response = await tryRefresh({ accessToken: credentials.jwt, refreshToken: credentials.rft })
-        const newCredentials = {...credentials, jwt:response.accessToken, rft:response.refreshToken};
+        const response = await tryRefresh({
+          accessToken: credentials.jwt,
+          refreshToken: credentials.rft,
+        });
+        const newCredentials = {
+          ...credentials,
+          jwt: response.accessToken,
+          rft: response.refreshToken,
+        };
         try {
-          const response = await tryUpdateDraggedDtoOrder(draggedItem, newCredentials.jwt)
+          const response = await tryUpdateDraggedDtoOrder(
+            draggedItem,
+            newCredentials.jwt
+          );
           setCurrentBlog({ ...response });
-          setCredentials({...newCredentials});
+          setCredentials({ ...newCredentials });
         } catch (err) {
-          console.log(err)
-          setCurrentBlog({...prevBlog})
+          console.log(err);
+          setCurrentBlog({ ...prevBlog });
           console.log(error);
         }
       } catch (error) {
-        console.log(error)
-        console.log("ERROR REFRESHING")
+        console.log(error);
+        console.log("ERROR REFRESHING");
+      }
+    }
+  };
+
+  const handleDeleteImage = async (displayable: Displayable) => {
+    try {
+      const res = await tryDeleteImage(displayable, credentials.jwt);
+      console.log(res)
+      const updated = res;
+      setCurrentBlog(updated);
+      const disps = [
+        ...blogs.filter((b: Blog) => b.blogId !== currentBlog.blogId),
+      ];
+      setBlogs([...disps, updated]);
+    } catch (err) {
+      console.log(err);
+      try {
+        const res = await tryRefresh({
+          accessToken: credentials.jwt,
+          refreshToken: credentials.rft,
+        });
+        const newCredentials = {
+          ...credentials,
+          jwt: res.accessToken,
+          rft: res.refreshToken,
+        };
+        try {
+          const res = await tryDeleteImage(displayable, newCredentials.jwt);
+          const updated = res;
+          setCurrentBlog(updated);
+          const disps = [
+            ...blogs.filter((b: Blog) => b.blogId !== currentBlog.blogId),
+          ];
+          setBlogs([...disps, updated]);
+        } catch (err) {
+          console.log("Refresh succeeded but uncaught error.");
+        }
+      } catch (err) {
+        console.log("Refresh failed.");
       }
     }
   };
@@ -95,8 +153,14 @@ const BlogView = () => {
                   return (
                     <div
                       key={`${d.displayableId}-${d.dataType}`}
-                      className="w-full"
+                      className="w-full relative"
                     >
+                      <button
+                        onClick={() => handleDeleteImage(d)}
+                        className="absolute top-2 left-2 text-sm font-normal bg-red-400 bg-opacity-90 rounded px-3 text-red-50 active:bg-red-300 active:bg-opacity-100"
+                      >
+                        delete
+                      </button>
                       <img
                         key={`${d.displayableId}-${d.dataType}`}
                         onDragOver={(event) => onDragOver(event)}
@@ -110,23 +174,23 @@ const BlogView = () => {
                   );
                 case "Tweet":
                   return (
-                  //   <div
-                  //   key={`${d.displayableId}-${d.dataType}`}
-                  //   onDragOver={(event) => onDragOver(event)}
-                  //   onDragStart={(event) => onDragStart(event, index)}
-                  //   onDrop={(event) => onDrop(event, index)}
-                  //     draggable
-                  //     className="relative"
-                  //   >
-                  //     {/* <div className="absolute top-0 left-0 w-2 h-2 bg-red-500">
+                    //   <div
+                    //   key={`${d.displayableId}-${d.dataType}`}
+                    //   onDragOver={(event) => onDragOver(event)}
+                    //   onDragStart={(event) => onDragStart(event, index)}
+                    //   onDrop={(event) => onDrop(event, index)}
+                    //     draggable
+                    //     className="relative"
+                    //   >
+                    //     {/* <div className="absolute top-0 left-0 w-2 h-2 bg-red-500">
 
-                  //     </div> */}
-                  //     <TwitterTweetEmbed tweetId={d.signature} />
-                  // </div>
+                    //     </div> */}
+                    //     <TwitterTweetEmbed tweetId={d.signature} />
+                    // </div>
                     null
-                  )
+                  );
                 default:
-                  null
+                  null;
               }
             })}
         </div>

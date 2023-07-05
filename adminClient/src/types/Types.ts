@@ -39,6 +39,15 @@ export type ImageToSend = {
   blogId: number;
 };
 
+export type Image = {
+  imageId: number;
+  displayOrder: number;
+  caption?: string;
+  url: string;
+
+  blogId: number;
+}
+
 export type Tweet = {
   tweetId?: number;
   signature: string;
