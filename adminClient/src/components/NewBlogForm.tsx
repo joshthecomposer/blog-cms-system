@@ -74,8 +74,8 @@ const NewBlogForm = () => {
         placeholder="New blog title..."
         className="text-xl w-full"
       />
-      <button className="bg-emerald-500 text-indigo-100 rounded w-[80px]">
-        New
+      <button className="bg-emerald-500 text-emerald-50 rounded w-[80px]">
+        Create
       </button>
     </form>
   );

@@ -3,6 +3,7 @@ import { Blog } from "../types/Types";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { useNavigate } from "react-router-dom";
 import NewBlogForm from "../components/NewBlogForm";
+import { tryDeleteBlog, tryRefresh } from "../utils/apiRequests";
 
 const BlogDashboard = () => {
   const navigate = useNavigate();
@@ -10,6 +11,8 @@ const BlogDashboard = () => {
   const [blogs, setBlogs] = useLocalStorage("blogs", []);
   //@ts-ignore
   const [currentBlog, setCurrentBlog] = useLocalStorage("currentBlog", {});
+
+  const [credentials, setCredentials] = useLocalStorage("credentials", {});
 
   const handleCurrentBlog = (blogId: number) => {
     if (parseInt(currentBlog.blogId) === blogId) {
@@ -25,14 +28,31 @@ const BlogDashboard = () => {
     }
   };
 
-  // useEffect(() => {
-  //   let sortedBlogs: Blog[] = blogs.sort((a: Blog, b: Blog) =>
-  //     a.blogId > b.blogId ? 1 : b.blogId > a.blogId ? -1 : 0
-  //   );
-
-  //   setBlogs(sortedBlogs);
-  // }, []);
-
+  const handleBlogDelete =  async (blog:Blog)  => {
+    try {
+      const res = await tryDeleteBlog(blog, credentials.jwt)
+      const filtered = blogs.filter((b: Blog) => b.blogId !== blog.blogId)
+      console.log(res)
+      setBlogs( [...filtered] );
+    } catch (error) {
+      try {
+        const res = await tryRefresh({ accessToken: credentials.jwt, refreshToken: credentials.rft });
+        const newCredentials = res;
+        setCredentials(newCredentials);
+        try {
+          const res = await tryDeleteBlog(blog, newCredentials.jwt)
+          const filtered = blogs.filter((b: Blog) => b.blogId !== blog.blogId)
+          console.log(filtered)
+          console.log(res);
+          setBlogs( [...filtered] );
+        } catch (error) {
+          console.log("Refresh request worked but uncaught error.")
+        }
+      } catch (error) {
+        console.log("error with refresh request")
+      }
+    }
+  }
 
   return (
     <>
@@ -44,12 +64,18 @@ const BlogDashboard = () => {
               <tr key={i}>
                 <td className="border-y text-xl p-5 w-full flex justify-between">
                   <p className="w-full">{b.title}</p>
-                  <div>
+                  <div className="flex gap-1">
                     <button
                       onClick={() => handleCurrentBlog(b.blogId)}
-                      className="bg-indigo-500 text-indigo-100 rounded w-[80px]"
+                      className="bg-indigo-500 text-indigo-50 rounded w-[80px]"
                     >
                       View
+                    </button>
+                    <button
+                      onClick={() => handleBlogDelete(b)}
+                      className="bg-red-500 text-red-50 rounded w-[80px]"
+                    >
+                      Delete
                     </button>
                   </div>
                 </td>

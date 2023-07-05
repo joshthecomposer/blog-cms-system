@@ -10,14 +10,14 @@ const NavDrawer = () => {
   const [credentials, setCredentials] = useLocalStorage("credentials", {})
   return (
     <>
-      <nav className="bg-sky-900 text-sky-100 text-xl gap-10 px-10 py-5 items-center font-oswald lg:flex hidden relative z-10">
+      <nav className="bg-blue-950 text-blue-100 relative fixed top-0 right-0 z-50 text-xl gap-10 px-10 py-5 items-center font-oswald flex relative w-full z-10">
         <h2 className="text-5xl bold">
-          TolkienWithFriends<span className="text-sm italic">Admin</span>
+          BlogCMS<span className="text-sm italic">Admin</span>
         </h2>
         {credentials && Object.keys(credentials).length > 0? (
           <div className="flex justify-between w-full">
             <div className="flex gap-4 underline">
-              <a href="/">Public Site</a>
+              {/* <a href="/">Public Site</a> */}
               <Link to="/admin/blog/dashboard">Blog Dashboard</Link>
             </div>
             <div className="flex gap-5">
@@ -30,7 +30,12 @@ const NavDrawer = () => {
               </p>
             </div>
           </div>
-        ) : null}
+        ) :
+        <div className="flex gap-3">
+          <Link className="text-2xl" to="/admin">Login</Link>
+          <Link className="text-2xl" to="/admin/signup">Signup</Link>
+        </div>
+        }
       </nav>
     </>
   );

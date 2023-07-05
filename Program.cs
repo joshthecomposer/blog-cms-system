@@ -67,15 +67,15 @@ app.UseCors("AllowOrigins");
 
 app.UseAuthorization();
 
-app.MapControllerRoute(
-	name: "default",
-	pattern: "/",
-	defaults: new { controller = "Public", action = "Index" }
-);
+// app.MapControllerRoute(
+// 	name: "default",
+// 	pattern: "/",
+// 	defaults: new { controller = "Public", action = "Index" }
+// );
 
 app.MapControllerRoute(
 	name: "admin",
-	pattern: "/admin/{*url}",
+	pattern: "{*url}",
 	defaults: new { controller = "Public", action = "Admin" }
 );
 

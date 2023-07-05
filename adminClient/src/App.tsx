@@ -8,6 +8,7 @@ import NavDrawer from "./components/NavDrawer";
 import BlogView from "./pages/BlogView";
 import ReorderableTextareaList from "./pages/ReorderableTextareaList";
 import useLocalStorage from "./hooks/useLocalStorage";
+import SignUpForm from "./pages/SignUpForm";
 // import useLocalStorage from "./hooks/useLocalStorage";
 
 function App() {
@@ -15,9 +16,7 @@ function App() {
   const [credentials, setCredentials] = useLocalStorage("credentials", {});
   return (
         <>
-        <NavDrawer />
-        <div className="px-5 md:px-0">
-
+          <NavDrawer />
           <Routes>
             {credentials && Object.keys(credentials).length > 0 ? (
               <Route
@@ -26,11 +25,11 @@ function App() {
               />
             ) : null}
             <Route path="/admin" element={<LoginForm />} />
+            <Route path="/admin/signup" element={<SignUpForm />} />
             <Route path="/admin/blog/:blogId" element={<BlogView />} />
             <Route path="/drag/" element={<ReorderableTextareaList />} />
             <Route path="/admin/*" element={<CatchAll />} />
           </Routes>
-        </div>
         </>
 
   );

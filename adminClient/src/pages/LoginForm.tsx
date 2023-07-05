@@ -1,5 +1,5 @@
 import { ChangeEvent, FormEvent, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { adminLoginRequest } from "../utils/apiRequests";
 import useLocalStorage from "../hooks/useLocalStorage";
 // interface LoginFormProps {
@@ -50,7 +50,7 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="flex items-center justify-center fixed inset-0 z-50">
+    <div className="flex items-center justify-center z-40 fixed inset-1">
       <div className="bg-blue-950 relative">
         <div className="flex flex-col justify-center items-center login font-oswald gap-4 py-6">
           <div className="fixed top-10 px-2 bg-red-500 rounded-lg text-neutral-100 text-2xl">
@@ -109,7 +109,7 @@ const LoginForm = () => {
           </form>
           <p className="text-neutral-100 text-sm my-3">
             Wanted to Sign up instead?{" "}
-            <span className="underline italic">Go here.</span>
+            <span className="underline italic"><Link className="underline italic" to="/admin/signup">Go here.</Link></span>
           </p>
         </div>
       </div>

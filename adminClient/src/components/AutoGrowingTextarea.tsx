@@ -45,7 +45,7 @@ const AutoGrowingTextarea = (props: TAProps) => {
   };
 
   const handleTextBlur = async () => {
-    if (!saveIsClicked) {
+    if (!saveIsClicked || !deleteIsClicked) {
       let disps: Displayable[] = currentBlog.displayables.filter(
         (d: Displayable) =>
           d.displayableId !== displayable.displayableId &&
@@ -77,7 +77,7 @@ const AutoGrowingTextarea = (props: TAProps) => {
 
   const confirmDelete = async () => {
     try {
-      const response = await deleteTextBlock(displayable);
+      const response = await deleteTextBlock(displayable, credentials.jwt);
       const updated = response;
       setCurrentBlog(updated);
       const disps = [
@@ -86,6 +86,32 @@ const AutoGrowingTextarea = (props: TAProps) => {
       setBlogs([...disps, updated]);
       return setDeleteIsClicked(false);
     } catch (error) {
+      try {
+        const res = await tryRefresh({
+          accessToken: credentials.jwt,
+          refreshToken: credentials.rft,
+        });
+        const newCredentials = {
+          ...credentials,
+          jwt: res.accessToken,
+          rft: res.refreshToken,
+        };
+        try {
+          const response = await deleteTextBlock(displayable, newCredentials.jwt);
+      const updated = response;
+      setCurrentBlog(updated);
+      const disps = [
+        ...blogs.filter((b: Blog) => b.blogId !== currentBlog.blogId),
+      ];
+          setBlogs([...disps, updated]);
+          setCredentials(newCredentials);
+      return setDeleteIsClicked(false);
+        } catch {
+          console.log("Unknown error after refresh");
+        }
+      } catch (error) {
+        console.log("error refreshing.")
+      }
       console.log(error);
     }
   };
@@ -156,7 +182,7 @@ const AutoGrowingTextarea = (props: TAProps) => {
     updateBlog();
   };
   const handleDeleteClicked = () => {
-    setDeleteIsClicked(true);
+    handleTextBlur();
     confirmDelete();
   };
 

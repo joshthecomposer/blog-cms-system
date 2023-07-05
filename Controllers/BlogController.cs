@@ -109,10 +109,10 @@ public class BlogController : Controller
 		}
 	}
 
-	[HttpDelete("{blogId}")]
-	public async Task<ActionResult<Blog>> DeleteById(int blogId)
+	[HttpDelete]
+	public async Task<ActionResult<Blog>> DeleteById(Blog toDelete)
 	{
-		var blog = await _db.Blogs.FindAsync(blogId);
+		var blog = await _db.Blogs.FindAsync(toDelete.BlogId);
 		try
 		{
 			var headerValue = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);

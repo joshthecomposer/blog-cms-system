@@ -79,10 +79,10 @@ export const tryCreateTextBlock = async (textBlock: TextBlock, jwt:string) => {
     });
 }
 
-export const deleteTextBlock = async (textBlock: Displayable) => {
+export const deleteTextBlock = async (textBlock: Displayable, jwt:string) => {
   const config = {
     headers: {
-      Authorization: `Bearer ${localStorage.getItem("jwt")}`
+      Authorization: `Bearer ${jwt}`
     },
   };
   return apiClient
@@ -153,6 +153,24 @@ export const tryCreateTweetEmbed = async (newTweet: Tweet, jwt:string) => {
     .post(`/content/tweet`, newTweet, config)
     .then((res) => res.data)
     .catch((err) => { throw err.response });
+}
+
+//TODO: make admin type
+export const adminSignupRequest = async (newAdmin: any) => {
+  return apiClient
+    .post(`/admin/register`, newAdmin)
+    .then((res) => res.data)
+    .catch((err)=>{throw err.response})
+}
+
+export const tryDeleteBlog = async (blog: Blog, jwt: string) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${jwt}`
+    },
+  };
+  return apiClient
+    .delete(`/blog`, {...config, data:blog})
 }
 
 
