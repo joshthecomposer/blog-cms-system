@@ -348,7 +348,7 @@ public class ContentController : ControllerBase
 				}
 
 				var check = await _db.Blogs
-					.AnyAsync(b=>b.BlogId == tweet.BlogId && b.BlogId == id);
+					.AnyAsync(b => b.BlogId == tweet.BlogId && b.BlogId == id);
 				if (!check) { return NotFound("Blog not found."); }
 
 
@@ -359,7 +359,7 @@ public class ContentController : ControllerBase
 					.Where(b => b.BlogId == tweet.BlogId)
 					.Include(b => b.TextBlocks)
 					.Include(b => b.Images)
-					.Include(b=>b.Tweets)
+					.Include(b => b.Tweets)
 					.FirstOrDefaultAsync();
 
 				if (blog == null) { return NotFound("Blog not found."); }
@@ -428,7 +428,7 @@ public class ContentController : ControllerBase
 				var blog = await _db.Blogs.Where(b => b.BlogId == input.BlogId)
 					.Include(b => b.TextBlocks)
 					.Include(b => b.Images)
-					.Include(b=>b.Tweets)
+					.Include(b => b.Tweets)
 					.FirstOrDefaultAsync();
 				if (blog == null)
 				{
@@ -446,5 +446,59 @@ public class ContentController : ControllerBase
 			}
 		}
 		return BadRequest("Modelstate was invalid");
+	}
+
+	[HttpDelete("image")]
+	public async Task<ActionResult<BlogWithOrderedContentDto>> DeleteImage(DisplayableDto input)
+	{
+		var imageToDelete = new Image
+		{
+			ImageId = input.DisplayableId,
+			DisplayOrder = input.DisplayOrder,
+			Url = input.Url,
+			Caption = input.Caption,
+
+			BlogId = input.BlogId
+		};
+		try
+		{
+			var headerValue = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
+			var token = headerValue?.Parameter;
+			if (string.IsNullOrEmpty(token))
+			{
+				return Unauthorized("Token was null or empty");
+			}
+			var principal = AdminController.GetPrincipalFromExpiredToken(token, _config["AppSecrets:JWTSecret"]!);
+			if (principal?.Identity?.Name == null)
+			{
+				return Unauthorized("Principal was null or name was null");
+			}
+			if (!int.TryParse(principal.Identity.Name, out int id))
+			{
+				return BadRequest("Identity name was not a valid integer");
+			}
+			bool check = await _db.Blogs.Where(b => b.BlogId == input.BlogId && b.AdminId == id).AnyAsync();
+			if (!check) { return Unauthorized("Requested Resource was not found or did not match claim ID"); }
+
+			_db.Images.Remove(imageToDelete);
+			await _db.SaveChangesAsync();
+
+			var blog = await _db.Blogs.Where(b => b.BlogId == input.BlogId && b.AdminId == id)
+				.Include(b => b.Images)
+				.Include(b => b.TextBlocks)
+				.Include(b => b.Tweets)
+				.FirstOrDefaultAsync();
+			if (blog == null) { return NotFound("Blog not found"); }
+
+			return new BlogWithOrderedContentDto(blog);
+		}
+		catch (FormatException)
+		{
+			return BadRequest("Authorization header format was invalid");
+		}
+		catch (Exception e)
+		{
+			return BadRequest("Something went wrong " + e.Message);
+		}
 	}
 }

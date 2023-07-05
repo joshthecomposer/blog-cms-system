@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using MyApp.Interfaces;
+using MyApp.DTOs;
 
 namespace MyApp.Models.Content;
 public class Image : BaseEntity, IDisplayable
