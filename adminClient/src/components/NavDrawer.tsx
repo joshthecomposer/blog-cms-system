@@ -10,7 +10,7 @@ const NavDrawer = () => {
   const [credentials, setCredentials] = useLocalStorage("credentials", {})
   return (
     <>
-      <nav className="bg-blue-950 text-blue-100 relative fixed top-0 right-0 z-50 text-xl gap-10 px-10 py-5 items-center font-oswald flex relative w-full z-10">
+      <nav className="bg-blue-950 text-blue-100 relative fixed top-0 right-0 z-40 text-xl gap-10 px-10 py-5 items-center font-oswald flex relative w-full z-10">
         <h2 className="text-5xl bold">
           BlogCMS<span className="text-sm italic">Admin</span>
         </h2>

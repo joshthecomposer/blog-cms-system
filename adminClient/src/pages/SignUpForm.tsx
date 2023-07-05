@@ -45,8 +45,16 @@ const SignUpForm = () => {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center text-center login font-oswald p-2 gap-4 fixed inset-0 z-40">
+    <div className="flex flex-col justify-center items-center text-center login font-oswald p-2 gap-4 fixed inset-0 z-30">
       <div className="bg-blue-950 relative py-6">
+      <div className="absolute top-0 left-50 text-center w-full px-2 bg-red-500 z-50 rounded-lg text-neutral-100 text-base">
+            {errors.email
+              ? errors.email.map((v, i) => <p key={i}>{v}</p>)
+              : null}
+            {errors.password
+              ? errors.password.map((v, i) => <p key={i}>{v}</p>)
+              : null}
+          </div>
                 <h1 className="font-oswald uppercase text-4xl text-neutral-100  font-semibold uppercase">Register</h1>
                 <form onSubmit={handleSubmit} className="w-full max-w-lg bg-opacity-30 rounded shadow-lg px-5 flex flex-col gap-4">
                     <div className="flex flex-wrap -mx-3 gap-3">
