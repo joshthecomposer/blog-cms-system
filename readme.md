@@ -1,5 +1,7 @@
 # A CMS Blog System
 
+**Live Link [Here.](http://myapp10-dev.eba-2pnapweq.us-east-1.elasticbeanstalk.com/)**
+
 This is a blog system I am developing which I will use for my personal website. It will allow full content management, and an easy way to write blogs, upload images, embed media, etc.  
 It works by allowing you to add content such as headers, textblocks, tweet embeds, etc. and the backend will save the order and layout of the blog. 
 
