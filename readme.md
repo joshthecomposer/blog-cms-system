@@ -13,6 +13,7 @@ It works by allowing you to add content such as headers, textblocks, tweet embed
 * S3 for image upload
 
 ### Finished Features:
+* Compiling down to html after editing blog for the most solid performance for the end blog viewer.
 * Drag and drop reordering of blog content.
 * Users can add textblocks which will auto-grow to give the user a feel for how the final blog will look.
 * Users can add headers
@@ -24,6 +25,5 @@ It works by allowing you to add content such as headers, textblocks, tweet embed
 * More content types
 * Hyperlinking within a textblock.
 * Youtube embed
-* Compiling down to html for the most solid performance for the end blog viewer.
 
 
