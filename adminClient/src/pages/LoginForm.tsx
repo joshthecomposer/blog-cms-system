@@ -36,8 +36,8 @@ const LoginForm = () => {
         rft: res.refreshToken,
         adminId: res.adminId,
         name: res.name,
-        email: res.email
-      })
+        email: res.email,
+      });
       setBlogs(res.blogs);
       navigate("/admin/blog/dashboard");
     } catch (err: any) {
@@ -50,12 +50,10 @@ const LoginForm = () => {
   };
 
   return (
-
-
     <div className="flex items-center justify-center z-30 fixed inset-1">
       <div className="bg-blue-950 relative">
         <div className="flex flex-col justify-center items-center login font-oswald gap-4 py-6">
-        <div className="absolute top-0 left-50 text-center w-full px-2 bg-red-500 z-50 rounded-lg text-neutral-100 text-base">
+          <div className="absolute top-0 left-50 text-center w-full px-2 bg-red-500 z-50 rounded-lg text-neutral-100 text-base">
             {errors.email
               ? errors.email.map((v, i) => <p key={i}>{v}</p>)
               : null}
@@ -111,7 +109,11 @@ const LoginForm = () => {
           </form>
           <p className="text-neutral-100 text-sm my-3">
             Wanted to Sign up instead?{" "}
-            <span className="underline italic"><Link className="underline italic" to="/admin/signup">Go here.</Link></span>
+            <span className="underline italic">
+              <Link className="underline italic" to="/admin/signup">
+                Go here.
+              </Link>
+            </span>
           </p>
         </div>
       </div>

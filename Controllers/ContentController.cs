@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using MyApp.Models.Content;
 using MyApp.Data;
@@ -6,12 +5,10 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authorization;
-using System.Text.Json.Serialization;
 using MyApp.DTOs;
 using MyApp.Interfaces;
 using Amazon.S3;
 using Amazon.S3.Model;
-using Amazon.S3.Endpoints;
 
 namespace MyApp.Controllers;
 [Authorize]

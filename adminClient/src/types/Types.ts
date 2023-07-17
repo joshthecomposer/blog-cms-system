@@ -3,6 +3,7 @@ export type Blog = {
   title: string;
   adminId: number;
   released: boolean;
+  compiledContent?: string;
   displayables: Displayable[];
   createdAt: string;
   updatedAt: string;

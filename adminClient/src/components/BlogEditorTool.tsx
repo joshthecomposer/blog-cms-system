@@ -2,7 +2,15 @@ import { BiX, BiEdit } from "react-icons/bi";
 import { useState, useEffect } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { Blog, TextBlock, Tweet } from "../types/Types";
-import { tryCreateTextBlock, tryCreateTweetEmbed, tryRefresh, tryUploadImage } from "../utils/apiRequests";
+import {
+  tryCreateTextBlock,
+  tryCreateTweetEmbed,
+  tryRefresh,
+  tryUploadImage,
+  tryCompileBlog
+} from "../utils/apiRequests";
+
+import { useNavigate } from "react-router-dom";
 
 interface BlogEditorProps {
   currentBlog: Blog;
@@ -13,12 +21,14 @@ const BlogEditorTool = (props: BlogEditorProps) => {
   const { currentBlog, setCurrentBlog } = props;
   const [blogs, setBlogs] = useLocalStorage("blogs", []);
   const [editorShowing, setEditorShowing] = useState<boolean>(false);
-  const [credentials, setCredentials] = useLocalStorage("credentials", {})
+  const [credentials, setCredentials] = useLocalStorage("credentials", {});
   const [newTweet, setNewTweet] = useState<Tweet>({
     blogId: currentBlog.blogId,
     signature: "",
     displayOrder: 0,
-  })
+  });
+
+  const navigate = useNavigate();
 
   const addTextBlock = async (contentType: string) => {
     let newDisplayOrder: number = 1;
@@ -81,14 +91,13 @@ const BlogEditorTool = (props: BlogEditorProps) => {
     }
     let payload = { ...newTweet, displayorder: newDisplayOrder };
     try {
-      const res = await tryCreateTweetEmbed(payload, credentials.jwt)
+      const res = await tryCreateTweetEmbed(payload, credentials.jwt);
       const blog = res;
       const filtered = blogs.filter(
         (b: Blog) => b.blogId !== currentBlog.blogId
       );
       setBlogs([...filtered, blog]);
       setCurrentBlog(blog);
-
     } catch (err) {
       try {
         const res = await tryRefresh({
@@ -101,7 +110,7 @@ const BlogEditorTool = (props: BlogEditorProps) => {
           rft: res.refreshToken,
         };
         try {
-          const res = await tryCreateTweetEmbed(payload, newCredentials.jwt)
+          const res = await tryCreateTweetEmbed(payload, newCredentials.jwt);
           const blog = res;
           const filtered = blogs.filter(
             (b: Blog) => b.blogId !== currentBlog.blogId
@@ -115,9 +124,8 @@ const BlogEditorTool = (props: BlogEditorProps) => {
       } catch (err) {
         console.log("error refreshing...");
       }
-
     }
-  }
+  };
   const handleImageUpload = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     let newDisplayOrder: number = 1;
@@ -126,20 +134,22 @@ const BlogEditorTool = (props: BlogEditorProps) => {
         currentBlog.displayables[currentBlog.displayables.length - 1]
           .displayOrder + 1;
     }
-    const input = event.currentTarget.elements.namedItem('input-file-id') as HTMLInputElement
+    const input = event.currentTarget.elements.namedItem(
+      "input-file-id"
+    ) as HTMLInputElement;
 
-    const file = input.files?.[0]
+    const file = input.files?.[0];
 
     if (!file) {
-      console.error("no file selected")
-      return
+      console.error("no file selected");
+      return;
     }
 
     const formData = new FormData();
 
-    formData.append('file', file, file.name)
-    formData.append('blogId', currentBlog.blogId.toString())
-    formData.append('displayOrder', newDisplayOrder.toString());
+    formData.append("file", file, file.name);
+    formData.append("blogId", currentBlog.blogId.toString());
+    formData.append("displayOrder", newDisplayOrder.toString());
 
     try {
       const res = await tryUploadImage(formData, credentials.jwt);
@@ -150,19 +160,30 @@ const BlogEditorTool = (props: BlogEditorProps) => {
       );
       setBlogs([...filtered, updatedBlog]);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-
-  }
+  };
 
   const handleTweetChange = (e: any) => {
     setNewTweet({ ...newTweet, signature: e.target.value });
-  }
+  };
 
   const toggleEditor = () => {
     return setEditorShowing(!editorShowing);
   };
+  const compileBlog = async () => {
+    if (confirm("Have you saved all your changes?")) {
+      try {
+        const res = await tryCompileBlog(currentBlog, credentials.jwt);
+        const newBlog = res;
 
+        setCurrentBlog({...currentBlog, compiledContent: newBlog.compiledContent });
+        navigate("/admin/blog/preview")
+      } catch (err) {
+        //TODO: finish this
+      }
+    }
+  };
   useEffect(() => {}, [currentBlog]);
 
   return (
@@ -197,7 +218,10 @@ const BlogEditorTool = (props: BlogEditorProps) => {
         >
           &lt;p&gt;Paragraph&lt;/p&gt;
         </p>
-        <form onSubmit={handleEmbedTweet} className="border-[1px] rounded shadow-sm py-3 px-2">
+        <form
+          onSubmit={handleEmbedTweet}
+          className="border-[1px] rounded shadow-sm py-3 px-2"
+        >
           <div className="flex flex-col gap-2">
             <label>Embed a tweet:</label>
             <input
@@ -208,7 +232,7 @@ const BlogEditorTool = (props: BlogEditorProps) => {
               onChange={handleTweetChange}
               disabled
             />
-            <button disabled className="bg-indigo-500 rounded text-indigo-100">
+            <button disabled className="bg-indigo-500 rounded text-indigo-50">
               !Disabled!
             </button>
           </div>
@@ -226,11 +250,21 @@ const BlogEditorTool = (props: BlogEditorProps) => {
               type="file"
               placeholder="past tweet id..."
             />
-            <button className="bg-emerald-500 rounded text-indigo-100">
+            <button className="bg-emerald-500 rounded text-emerald-50">
               Upload
             </button>
           </div>
         </form>
+        <div className="border-[1px] rounded flex flex-col gap-2 shadow-sm py-3 px-2">
+          <h3 className="text-2xl text-neutral-700">Preview And Release</h3>
+
+          <button
+            onClick={compileBlog}
+            className="bg-yellow-600 w-full rounded px-4 text-yellow-50"
+          >
+            Preview Blog
+          </button>
+        </div>
       </div>
     </div>
   );

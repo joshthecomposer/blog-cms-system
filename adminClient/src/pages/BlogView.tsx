@@ -113,6 +113,7 @@ const BlogView = () => {
     }
   };
 
+
   useEffect(() => {}, [currentBlog]);
 
   return (
@@ -122,8 +123,9 @@ const BlogView = () => {
         setCurrentBlog={setCurrentBlog}
       />
 
+
       <div className="self-center items-center flex flex-col m-auto py-10 w-full md:px-0 md:w-2/3 2xl:w-1/3 relative z-[1]">
-        <h1 className="text-3xl text-center sm:text-4xl 2xl:text-5xl font-bel w-full">
+        <h1 key={currentBlog.blogId} className="text-3xl text-center sm:text-4xl 2xl:text-5xl font-bel w-full">
           {currentBlog.title}
         </h1>
         <hr className="my-10 w-full self-center" />
@@ -132,7 +134,7 @@ const BlogView = () => {
             currentBlog.displayables.length > 0 &&
             currentBlog.displayables.map((d: Displayable, index: any) => {
               switch (d.dataType) {
-                case "TextBlock":
+                case "TextBlock" :
                   return (
                     <div
                       key={`${d.displayableId}-${d.dataType}`}

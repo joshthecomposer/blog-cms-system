@@ -186,6 +186,8 @@ const AutoGrowingTextarea = (props: TAProps) => {
     confirmDelete();
   };
 
+
+
   useEffect(() => {
     //@ts-ignore
     setText(displayable.content);

@@ -212,3 +212,17 @@ export const tryDeleteImage = async (displayable: Displayable, jwt: string) => {
       throw err.response;
     });
 };
+
+export const tryCompileBlog = async (blog: Blog, jwt: string) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${jwt}`,
+    },
+  };
+  return apiClient
+    .post(`/blog/compile`, blog, config)
+    .then((res) => res.data)
+    .catch((err) => {
+      throw err.response;
+    });
+}

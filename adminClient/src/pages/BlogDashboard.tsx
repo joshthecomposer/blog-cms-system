@@ -7,9 +7,9 @@ import { tryDeleteBlog, tryRefresh } from "../utils/apiRequests";
 
 const BlogDashboard = () => {
   const navigate = useNavigate();
-  //@ts-ignore
+
   const [blogs, setBlogs] = useLocalStorage("blogs", []);
-  //@ts-ignore
+
   const [currentBlog, setCurrentBlog] = useLocalStorage("currentBlog", {});
 
   const [credentials, setCredentials] = useLocalStorage("credentials", {});
