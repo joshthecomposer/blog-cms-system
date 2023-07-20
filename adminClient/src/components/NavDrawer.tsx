@@ -1,13 +1,21 @@
 import { useNavigate, Link } from "react-router-dom";
 import useLocalStorage from "../hooks/useLocalStorage";
 const NavDrawer = () => {
+
+  //@ts-ignore
+  const [blogs, setBlogs] = useLocalStorage("blogs", []);
+  //@ts-ignore
+  const [currentBlog, setCurrentBlog] = useLocalStorage("currentBlog", {});
+  //@ts-ignore
+  const [credentials, setCredentials] = useLocalStorage("credentials", {});
+
   const navigate = useNavigate();
   const handleLogout = () => {
     setCredentials({});
+    setBlogs([]);
+    setCurrentBlog({});
     navigate("/admin");
   };
-  //@ts-ignore
-  const [credentials, setCredentials] = useLocalStorage("credentials", {})
   return (
     <>
       <nav className="bg-blue-950 text-blue-100 relative fixed top-0 right-0 z-40 text-xl gap-10 px-10 py-5 items-center font-oswald flex relative w-full z-10">
